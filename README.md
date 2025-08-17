@@ -1,71 +1,45 @@
-# 👓 Lotilla-Lara Optical Booking UI
+# 👓 Lotilla-Lara Optical Clinic
 
-A simple, HTML-powered visual interface to display available eyeglass frame models for **Lotilla-Lara Optical Clinic**, led by **Dra. Eldie L. Lara**.
-
-> _"That cares your Eyes!"_  
-> 📅 Open: **Sunday to Friday**
+Welcome to the official **Lotilla-Lara Optical Clinic** online showcase!  
+Caring for your eyes with style and precision.
 
 ---
 
-## 📸 Frame Collection
-
-Explore real photos of available frame options:
-
-- `LL1.jpg` – `LL7.jpg` (Frame mockups)
-- `eldie1.png` – Clinic mascot / cartoon branding
-- `Logo6.jpg` – Official optical logo
+## 📅 Clinic Schedule
+**Open Days:** Sunday to Friday  
+**Doctor:** Dra. Eldie L. Lara  
+📧 Email: laraeldie1956@gmail.com  
+📞 WhatsApp: +63-967-271-0883
 
 ---
 
-## 🔗 Live Preview
+## 🖼️ Frames Gallery Slide Show (More New Frames)
+Explore our curated collection of high-quality eyeglass frames:
+- LL1 – Retro Mix
+- LL2 – Sleek Metal
+- LL3 – Classic Black
+- LL4 – Chic Rose + Profile
+- LL5 – Minimalist Mix
+- LL6 – Full Color Spread
+- LL7 – Rounded Casuals
 
-[👉 View the Booking UI](https://regislara-byte.github.io/LotillaLara-ClinicLP/)
-
-> `index.html` is now the homepage. No need to type the file name in the URL.
-
----
-
-## 🗂️ File Structure
-
-```
-LotillaLara-ClinicLP/
-├── LL1.jpg to LL7.jpg        # Frame mockup photos
-├── eldie1.png                # Clinic avatar
-├── Logo6.jpg                 # Official branding logo
-├── index.html                # Main booking interface (formerly: lotilla-lara-booking-with-frames.html)
-└── README.md
-```
+Each photo is available in full resolution for closer inspection.
 
 ---
 
-## 🛠️ How to Use / Customize
-
-1. Clone the repo:
-
-```bash
-git clone https://github.com/regislara-byte/LotillaLara-ClinicLP.git
-```
-
-2. Open `index.html` in your browser or HTML editor  
-3. Swap out or update the frame images as new stock arrives  
-4. Deploy via GitHub Pages for free
+## 🌐 Live Page
+The site is available via GitHub Pages:  
+**https://yourusername.github.io/LL-Optical/**  
+*(Replace `yourusername` with your actual GitHub username.)*
 
 ---
 
-## 📞 Clinic Contact Info
-
-**Lotilla-Lara Optical Clinic**  
-👩‍⚕️ Dra. Eldie L. Lara  
-📧 [laraeldie1956@gmail.com](mailto:laraeldie1956@gmail.com)  
-📱 +63-967-271-0883  
-🟢 WhatsApp ready
+## 📌 Assets
+- `index.html`: Main booking + gallery page.
+- `Logo6.jpg`: Clinic’s official logo.
+- `README.md`: This documentation file.
 
 ---
 
-## ❤️ Powered by
-
-**VAXINX Protocol™**  
-Maintained by [Regis Lara](https://github.com/regislara-byte)  
-Bringing pixel-perfect care to local clinics with a vision.
-
----
+Made with ❤️ by **VAXINX (Regis Lara)**  
+Powered by GitHub Pages and your vision.
