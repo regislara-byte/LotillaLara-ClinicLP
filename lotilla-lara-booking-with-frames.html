@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lotilla-Lara Optical Booking</title>
+  <link rel="icon" href="eldie1.png" type="image/png">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+      color: #2d2d2d;
+    }
+    .clinic-logo {
+      text-align: center;
+      margin-bottom: 10px;
+      animation: bounce 2s infinite;
+    }
+    .clinic-logo img {
+      max-width: 180px;
+      height: auto;
+      transition: transform 0.3s ease;
+    }
+    .clinic-logo img:hover {
+      transform: scale(1.05);
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .slogan {
+      text-align: center;
+      font-style: italic;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    form {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      font-weight: bold;
+      border: none;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    button:hover {
+      background: #3e8e41;
+      transform: scale(1.02);
+    }
+    .qr-section {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .qr-section img {
+      width: 160px;
+      height: 160px;
+      border-radius: 12px;
+      border: 2px solid #eee;
+    }
+    .whatsapp-btn {
+      display: block;
+      text-align: center;
+      background: #25D366;
+      color: white;
+      padding: 14px;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-top: 20px;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .whatsapp-btn:hover {
+      background: #1ebf5b;
+      transform: scale(1.03);
+    }
+    .contact-info {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+      color: #555;
+    }
+    .contact-info a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .contact-info a:hover {
+      text-decoration: underline;
+    }
+    .frame-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 15px;
+      margin: 30px 0;
+    }
+    .frame-gallery img {
+      width: 100%;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
+    }
+    .frame-gallery img:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+<a href="https://goo.gl/maps/K3mGXrUXVa9pWTbd9" class="clinic-logo" title="Visit Us at Isulan Public Market">
+  <img src="eldie1.png" alt="Lotilla-Lara Optical Clinic Logo">
+</a>
+
+<div class="slogan">That cares your eyes!</div>
+
+<h2>Book Your Eye Checkup</h2>
+
+<form action="https://docs.google.com/forms/d/e/1FAIpQLScjz02CEkY-p1p6T_oVGiM1KTKavZbHxSGDki4CU4O9IcyO_g/formResponse" method="POST" target="_blank">
+  <input type="text" name="entry.2005620554" placeholder="Full Name" required>
+  <input type="tel" name="entry.1166974658" placeholder="Phone Number" required>
+  <input type="date" name="entry.1065046570" required>
+
+  <select name="entry.1045781291" required>
+    <option value="">-- Select Time Slot --</option>
+    <option value="Break Time">Break Time</option>
+    <option value="No Clinic">No Clinic</option>
+    <option value="08:00 AM">08:00 AM</option>
+    <option value="08:30 AM">08:30 AM</option>
+    <option value="09:00 AM">09:00 AM</option>
+    <option value="09:30 AM">09:30 AM</option>
+    <option value="10:00 AM">10:00 AM</option>
+    <option value="10:30 AM">10:30 AM</option>
+    <option value="11:00 AM">11:00 AM</option>
+    <option value="11:30 AM">11:30 AM</option>
+    <option value="01:00 PM">01:00 PM</option>
+    <option value="01:30 PM">01:30 PM</option>
+    <option value="02:00 PM">02:00 PM</option>
+    <option value="02:30 PM">02:30 PM</option>
+    <option value="03:00 PM">03:00 PM</option>
+    <option value="03:30 PM">03:30 PM</option>
+    <option value="04:00 PM">04:00 PM</option>
+    <option value="04:30 PM">04:30 PM</option>
+    <option value="05:00 PM">05:00 PM</option>
+  </select>
+
+  <textarea name="entry.839337160" placeholder="Remarks / Symptoms"></textarea>
+
+  <button type="submit">Submit Booking</button>
+</form>
+
+<h3>Eyewear Frame Gallery</h3>
+<div class="frame-gallery">
+  <img src="LL1.jpg" alt="Frame 1">
+  <img src="LL2.jpg" alt="Frame 2">
+  <img src="LL3.jpg" alt="Frame 3">
+  <img src="LL4.jpg" alt="Frame 4">
+  <img src="LL5.jpg" alt="Frame 5">
+  <img src="LL6.jpg" alt="Frame 6">
+  <img src="LL7.jpg" alt="Frame 7">
+</div>
+
+<div class="qr-section">
+  <p>Scan to Book:</p>
+  <img src="your-qr-code.png" alt="QR Code to book online">
+</div>
+
+<a class="whatsapp-btn" href="https://wa.me/639672710883?text=Hello%20Dra.%20Lara%2C%20I%20would%20like%20to%20book%20an%20eye%20appointment">📱 Message via WhatsApp</a>
+
+<div class="contact-info">
+  <p>Email: <a href="mailto:laraeldie1956@gmail.com">laraeldie1956@gmail.com</a></p>
+  <p>WhatsApp: <a href="https://wa.me/639672710883">+63-967-271-0883</a></p>
+</div>
+
+</body>
+</html>
