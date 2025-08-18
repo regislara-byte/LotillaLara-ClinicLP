@@ -2,205 +2,95 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Lotilla-Lara Optical Booking</title>
-  <link rel="icon" href="Logo6.jpg" type="image/jpg">
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-    }
-    h2, h3 {
-      text-align: center;
-      color: #2d2d2d;
-    }
-    .clinic-logo {
-      text-align: center;
-      margin-bottom: 10px;
-      animation: bounce 2s infinite;
-    }
-    .clinic-logo img {
-      max-width: 180px;
-      height: auto;
-      transition: transform 0.3s ease;
-    }
-    .clinic-logo img:hover {
-      transform: scale(1.05);
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-    .slogan {
-      text-align: center;
-      font-style: italic;
-      color: #555;
-      margin-bottom: 10px;
-    }
-    form {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.05);
-    }
-    input, select, textarea, button {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
-    }
-    button {
-      background: #4CAF50;
-      color: white;
-      font-weight: bold;
-      border: none;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-    button:hover {
-      background: #3e8e41;
-      transform: scale(1.02);
-    }
-    .slideshow-container {
-      position: relative;
-      max-width: 100%;
-      margin: 30px auto;
-    }
-    .mySlides {
-      display: none;
-    }
-    .mySlides img {
-      width: 100%;
-      border-radius: 8px;
-    }
-    .qr-section, .contact-info, .spotify-embed {
-      text-align: center;
-      margin-top: 25px;
-    }
-    .qr-section img {
-      width: 160px;
-      height: 160px;
-      border-radius: 12px;
-      border: 2px solid #eee;
-    }
-    .whatsapp-btn {
-      display: block;
-      text-align: center;
-      background: #25D366;
-      color: white;
-      padding: 14px;
-      font-weight: bold;
-      border-radius: 8px;
-      text-decoration: none;
-      margin-top: 20px;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-    .whatsapp-btn:hover {
-      background: #1ebf5b;
-      transform: scale(1.03);
-    }
-    .contact-info a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .contact-info a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lotilla-Lara Clinic</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800">
 
-<!-- Logo -->
-<a href="https://goo.gl/maps/K3mGXrUXVa9pWTbd9" class="clinic-logo" title="Visit Us at Isulan Public Market">
-  <img src="Logo6.jpg" alt="Lotilla-Lara Optical Clinic Logo">
-</a>
+  <!-- Hero Section -->
+  <section class="bg-blue-600 text-white py-12">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-4xl font-bold">Lotilla-Lara Clinic</h1>
+      <p class="mt-4 text-lg">Your trusted partner in health & wellness</p>
+    </div>
+  </section>
 
-<!-- Slogan -->
-<div class="slogan">That cares your eyes!</div>
+  <!-- About -->
+  <section class="py-12">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-2xl font-semibold mb-4">About Us</h2>
+      <p class="text-gray-600">Providing compassionate care with modern medical expertise. Book your appointment online and get confirmation instantly via WhatsApp & Email.</p>
+    </div>
+  </section>
 
-<!-- Booking Header -->
-<h2>Book Your Eye Checkup</h2>
+  <!-- Patient Registration Form -->
+  <section class="py-12 bg-white shadow-lg rounded-lg max-w-3xl mx-auto p-8">
+    <h2 class="text-2xl font-semibold text-center mb-6">Book an Appointment</h2>
+    <form id="patientForm" action="https://formsubmit.co/YOUR_EMAIL@gmail.com" method="POST" class="space-y-4">
+      <!-- Hidden Inputs for FormSubmit -->
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
 
-<!-- Booking Form -->
-<form action="https://docs.google.com/forms/d/e/1FAIpQLScjz02CEkY-p1p6T_oVGiM1KTKavZbHxSGDki4CU4O9IcyO_g/formResponse" method="POST" target="_blank">
-  <input type="text" name="entry.2005620554" placeholder="Full Name" required>
-  <input type="tel" name="entry.1166974658" placeholder="Phone Number" required>
-  <input type="date" name="entry.1065046570" required>
-  <select name="entry.1045781291" required>
-    <option value="">-- Select Time Slot --</option>
-    <option value="Break Time">Break Time</option>
-    <option value="No Clinic">No Clinic</option>
-    <option value="09:00 AM">09:00 AM</option>
-    <option value="09:30 AM">09:30 AM</option>
-    <option value="10:00 AM">10:00 AM</option>
-    <option value="10:30 AM">10:30 AM</option>
-    <option value="11:00 AM">11:00 AM</option>
-    <option value="11:30 AM">11:30 AM</option>
-    <option value="01:00 PM">01:00 PM</option>
-    <option value="01:30 PM">01:30 PM</option>
-    <option value="02:00 PM">02:00 PM</option>
-    <option value="02:30 PM">02:30 PM</option>
-    <option value="03:00 PM">03:00 PM</option>
-    <option value="03:30 PM">03:30 PM</option>
-    <option value="04:00 PM">04:00 PM</option>
-    <option value="04:30 PM">04:30 PM</option>
-  </select>
-  <textarea name="entry.839337160" placeholder="Remarks / Symptoms"></textarea>
-  <button type="submit">Submit Booking</button>
-</form>
+      <div>
+        <label class="block font-medium">Full Name</label>
+        <input type="text" name="name" required class="w-full p-2 border rounded-lg">
+      </div>
 
-<!-- Gallery Slideshow -->
-<h3>Eyewear Frame Gallery</h3>
-<div class="slideshow-container">
-  <div class="mySlides"><img src="LL1.jpg" alt="Frame 1"></div>
-  <div class="mySlides"><img src="LL2.jpg" alt="Frame 2"></div>
-  <div class="mySlides"><img src="LL3.jpg" alt="Frame 3"></div>
-  <div class="mySlides"><img src="LL4.jpg" alt="Frame 4"></div>
-  <div class="mySlides"><img src="LL5.jpg" alt="Frame 5"></div>
-  <div class="mySlides"><img src="LL6.jpg" alt="Frame 6"></div>
-  <div class="mySlides"><img src="LL7.jpg" alt="Frame 7"></div>
-</div>
+      <div>
+        <label class="block font-medium">Contact Number</label>
+        <input type="text" name="phone" required class="w-full p-2 border rounded-lg">
+      </div>
 
-<!-- QR Section -->
-<div class="qr-section">
-  <p>Scan to Book:</p>
-  <img src="your-qr-code.png" alt="QR Code to book online">
-</div>
+      <div>
+        <label class="block font-medium">Email</label>
+        <input type="email" name="email" required class="w-full p-2 border rounded-lg">
+      </div>
 
-<!-- WhatsApp Button -->
-<a class="whatsapp-btn" href="https://wa.me/639672710883?text=Hello%20Dra.%20Lara%2C%20I%20would%20like%20to%20book%20an%20eye%20appointment">📱 Message via WhatsApp</a>
+      <div>
+        <label class="block font-medium">Preferred Date</label>
+        <input type="date" name="date" required class="w-full p-2 border rounded-lg">
+      </div>
 
-<!-- Spotify Embed -->
-<div class="spotify">
-  <h3>Listening to: Your Playlist</h3>
-  <iframe src="https://open.spotify.com/embed/playlist/3UDyrkZLkCuqXxFbxV72I8" width="100%" height="80" frameborder="0" allow="autoplay; encrypted-media" loading="lazy"></iframe>
-</div>
+      <div>
+        <label class="block font-medium">Message / Concern</label>
+        <textarea name="message" rows="3" class="w-full p-2 border rounded-lg"></textarea>
+      </div>
 
-<!-- Contact Info -->
-<div class="contact-info">
-  <p>Email: <a href="mailto:laraeldie1956@gmail.com">laraeldie1956@gmail.com</a></p>
-  <p>WhatsApp: <a href="https://wa.me/639672710883">+63-967-271-0883</a></p>
-</div>
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
+        Submit & Get Confirmation
+      </button>
+    </form>
+  </section>
 
-<!-- Slideshow Script -->
-<script>
-let slideIndex = 0;
-carousel();
-function carousel() {
-  let i;
-  let slides = document.getElementsByClassName("mySlides");
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none"; 
-  }
-  slideIndex++;
-  if (slideIndex > slides.length) {slideIndex = 1} 
-  slides[slideIndex-1].style.display = "block"; 
-  setTimeout(carousel, 3000); // Change image every 3 sec
-}
-</script>
+  <!-- Footer -->
+  <footer class="bg-gray-100 py-6 mt-12">
+    <div class="text-center text-gray-600">
+      © 2025 Lotilla-Lara Clinic. All rights reserved.
+    </div>
+  </footer>
 
+  <!-- WhatsApp Integration -->
+  <script>
+    document.getElementById("patientForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const name = event.target.name.value;
+      const phone = event.target.phone.value;
+      const date = event.target.date.value;
+      const message = event.target.message.value;
+
+      // WhatsApp Message
+      const whatsappNumber = "63XXXXXXXXXX"; // change to your WhatsApp number
+      const whatsappText = `Hello, I am ${name}. I would like to book an appointment on ${date}. My concern & time: ${message}. Contact: ${phone}`;
+      const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
+
+      // Open WhatsApp in new tab
+      window.open(whatsappURL, "_blank");
+
+      // Submit to Email (FormSubmit)
+      event.target.submit();
+    });
+  </script>
 </body>
 </html>
