@@ -29,7 +29,7 @@ Each photo is available in full resolution for closer inspection.
 
 ## 🌐 Live Page
 The site is available via GitHub Pages:  
-**https://regislara-byte.github.io/LL-Optical-v1**  
+**https://regislara-byte.github.io/LL-Optical-v2**  
 *(Replace `yourusername` with your actual GitHub username.)*
 
 ---
