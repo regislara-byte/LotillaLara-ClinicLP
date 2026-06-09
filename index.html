@@ -3,121 +3,733 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lotilla Lara Optical Clinic</title>
+  <title>Lotilla Lara Optical — See Your World Clearly</title>
+  <meta name="description" content="Premium optical care in the heart of the community. Expert eye examinations, designer frames, and vision solutions tailored to your life." />
+  <meta name="theme-color" content="#0D1117" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<header class="site-header">
-  <nav class="navbar">
-    <div class="brand">
-      <img src="assets/images/hero/Logo6.jpg" alt="Lotilla Lara Optical Clinic Logo">
-      <span>Lotilla Lara Optical Clinic</span>
-    </div>
+  <!-- Scroll progress bar -->
+  <div id="scroll-progress" aria-hidden="true"></div>
 
-    <div class="nav-links">
-      <a href="#services">Services</a>
-      <a href="#gallery">Frames</a>
-      <a href="#contact">Contact</a>
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav class="nav" id="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo" aria-label="Lotilla Lara Optical — home">
+        <span class="nav-logo-mark" aria-hidden="true">◎</span>
+        <span class="nav-logo-name">Lotilla Lara</span>
+        <span class="nav-logo-sub">Optical</span>
+      </a>
+      <ul class="nav-links" role="list">
+        <li><a href="#story">Our Story</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#frames">Frames</a></li>
+        <li><a href="#journey">Your Journey</a></li>
+        <li><a href="#booking" class="nav-cta">Book Now</a></li>
+      </ul>
+      <button class="nav-hamburger" aria-label="Open navigation menu" aria-expanded="false" onclick="toggleMenu(this)">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav-mobile" id="navMobile" aria-hidden="true">
+      <a href="#story" onclick="closeMenu()">Our Story</a>
+      <a href="#services" onclick="closeMenu()">Services</a>
+      <a href="#frames" onclick="closeMenu()">Frames</a>
+      <a href="#journey" onclick="closeMenu()">Your Journey</a>
+      <a href="#booking" onclick="closeMenu()" class="nav-mobile-cta">Book Appointment</a>
     </div>
   </nav>
-</header>
 
-<section class="hero">
-  <div class="hero-text">
-    <p class="eyebrow">Family Optical Care</p>
-    <h1>Clear Vision.<br>Personal Care.<br>Community Trust.</h1>
-    <p class="hero-subtitle">
-      Professional optical services for individuals and families.
-    </p>
-
-    <div class="hero-buttons">
-      <a href="#services" class="btn primary">View Services</a>
-      <a href="#contact" class="btn secondary">Contact Clinic</a>
+  <!-- ============================================================
+       HERO — FULLSCREEN
+  ============================================================ -->
+  <section class="hero" id="hero" aria-label="Hero">
+    <div class="hero-bg">
+      <!-- Replace: assets/images/hero-clinic.jpg — clinic exterior or close-up lens photography -->
+      <img
+        src="assets/images/hero.jpg"
+        alt="Light bending through precision optical lenses"
+        class="hero-img"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+      />
+      <div class="hero-img-fallback" aria-hidden="true"></div>
+      <div class="hero-overlay" aria-hidden="true"></div>
     </div>
-  </div>
 
-  <div class="hero-image">
-    <img src="assets/images/hero/LL1.jpg" alt="Optical clinic hero image">
-  </div>
-</section>
+    <div class="hero-content">
+      <p class="hero-chapter" aria-label="Chapter one">Chapter 01</p>
+      <h1 class="hero-title">
+        The world deserves<br />
+        <em>to be seen clearly.</em>
+      </h1>
+      <p class="hero-sub">
+        Premium optical care. Frames that fit your life.<br />
+        Vision that changes everything.
+      </p>
+      <div class="hero-actions">
+        <a href="#booking" class="btn btn-primary">Book Your Visit</a>
+        <a href="#story" class="btn btn-ghost">Our Story</a>
+      </div>
+    </div>
 
-<section class="about section">
-  <div class="section-text">
-    <p class="eyebrow">About The Clinic</p>
-    <h2>Local care with a family touch.</h2>
-    <p>
-      Lotilla Lara Optical Clinic is built on trust, service, and practical care.
-      We help families and individuals find better vision through professional
-      support, quality frames, and personal attention.
-    </p>
-    <p>
-      Our goal is simple: make every patient feel seen, guided, and confident.
-    </p>
-  </div>
-</section>
+    <div class="hero-torn" aria-hidden="true"></div>
+  </section>
 
-<section id="services" class="services section">
-  <p class="eyebrow center">Our Services</p>
-  <h2 class="center">Optical care made simple.</h2>
+  <!-- ============================================================
+       TRUST STATISTICS
+  ============================================================ -->
+  <section class="section stats" id="stats" aria-label="Clinic statistics">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-num" data-target="18">0</span><span class="stat-unit">+</span>
+          <span class="stat-label">Years of Practice</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" data-target="4200">0</span><span class="stat-unit">+</span>
+          <span class="stat-label">Patients Cared For</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" data-target="120">0</span><span class="stat-unit">+</span>
+          <span class="stat-label">Frame Styles</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" data-target="98">0</span><span class="stat-unit">%</span>
+          <span class="stat-label">Patient Satisfaction</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <div class="card-grid">
-    <div class="card">Eye Examination</div>
-    <div class="card">Prescription Glasses</div>
-    <div class="card">Reading Glasses</div>
-    <div class="card">Lens Replacement</div>
-    <div class="card">Frame Consultation</div>
-    <div class="card">Optical Support</div>
-  </div>
-</section>
+  <!-- ============================================================
+       DR. LARA STORY — DOCUMENTARY
+  ============================================================ -->
+  <section class="section story" id="story" aria-labelledby="story-heading">
+    <div class="container">
+      <p class="section-chapter">Chapter 02</p>
+      <div class="section-label" aria-hidden="true">Our Story</div>
 
-<section id="gallery" class="gallery section">
-  <p class="eyebrow center">Featured Frames</p>
-  <h2 class="center">Frames for everyday confidence.</h2>
+      <div class="story-grid">
+        <div class="story-image-col">
+          <!-- Replace: assets/images/dr-lara.jpg — portrait of Dr. Lara in clinic -->
+          <div class="story-image-wrap">
+            <img
+              src="assets/images/dr-lara.jpg"
+              alt="Dr. Lotilla Lara — founder and lead optician"
+              class="story-img"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            />
+            <div class="story-img-fallback" aria-hidden="true">
+              <span>Dr. Lotilla Lara</span>
+            </div>
+          </div>
+          <div class="story-badge">
+            <span class="badge-year">Est.</span>
+            <span class="badge-num">2006</span>
+          </div>
+        </div>
 
-  <div class="image-grid">
-    <img src="assets/images/gallery/LL2.jpg" alt="Optical frame 1">
-    <img src="assets/images/gallery/LL3.jpg" alt="Optical frame 2">
-    <img src="assets/images/gallery/LL4.jpg" alt="Optical frame 3">
-    <img src="assets/images/gallery/LL5.jpg" alt="Optical frame 4">
-    <img src="assets/images/gallery/LL6.jpg" alt="Optical frame 5">
-    <img src="assets/images/gallery/LL7.jpg" alt="Optical frame 6">
-  </div>
-</section>
+        <div class="story-text-col">
+          <h2 class="section-title" id="story-heading">
+            Before the clinic,<br />
+            <em>there was a question.</em>
+          </h2>
 
-<section class="why section">
-  <p class="eyebrow center">Why Patients Choose Us</p>
-  <h2 class="center">Care you can feel. Quality you can trust.</h2>
+          <p class="story-lead">
+            Lotilla Lara grew up watching her grandmother squint at the world — at family photographs, at menu boards, at the faces of grandchildren she could not quite make out. No one had ever told her she needed glasses.
+          </p>
+          <p>
+            That image stayed with Lotilla through school, through her optometry training, through the early years of practice in small shared spaces. It is why she opened her own clinic in 2006: not to run a business, but to ensure that no one in her community would go through life seeing less than they should.
+          </p>
+          <p>
+            Eighteen years later, that purpose has not changed. Every consultation at Lotilla Lara Optical begins the same way — not with a chart, but with a conversation.
+          </p>
 
-  <div class="card-grid">
-    <div class="card">Personalized Care</div>
-    <div class="card">Quality Frames</div>
-    <div class="card">Friendly Service</div>
-    <div class="card">Community Trust</div>
-    <div class="card">Professional Experience</div>
-    <div class="card">Practical Solutions</div>
-  </div>
-</section>
+          <blockquote class="story-quote">
+            "I am not fitting lenses. I am giving someone their world back."
+            <cite>— Dr. Lotilla Lara, Founder</cite>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<section id="contact" class="contact section">
-  <div class="contact-card">
-    <p class="eyebrow">Visit Us</p>
-    <h2>Book Your Visit</h2>
+  <!-- ============================================================
+       SERVICES — DARK SECTION (NVIDIA LAYER)
+  ============================================================ -->
+  <section class="section services dark-section" id="services" aria-labelledby="services-heading">
+    <div class="services-glow" aria-hidden="true"></div>
+    <div class="container">
+      <p class="section-chapter section-chapter--light">Chapter 03</p>
+      <div class="section-label section-label--light" aria-hidden="true">How We Care</div>
+      <h2 class="section-title section-title--light" id="services-heading">
+        Complete vision care,<br />
+        <em>precisely delivered.</em>
+      </h2>
+      <p class="section-intro section-intro--light">
+        From your first assessment to your annual review, every step is handled with the same careful attention.
+      </p>
 
-    <p><strong>Address:</strong> Add clinic address here</p>
-    <p><strong>Phone:</strong> Add phone number here</p>
-    <p><strong>Email:</strong> Add email here</p>
-    <p><strong>Facebook:</strong> Add Facebook page here</p>
-    <p><strong>Opening Hours:</strong> Add clinic hours here</p>
+      <div class="services-grid">
 
-    <a href="#" class="btn primary">Contact Clinic</a>
-  </div>
-</section>
+        <div class="service-card">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="20" cy="20" r="8"/>
+              <path d="M2 20C5 13 12 8 20 8s15 5 18 12c-3 7-10 12-18 12S5 27 2 20z"/>
+              <circle cx="20" cy="20" r="2" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
+          <div class="service-badge">Core</div>
+          <h3 class="service-title">Comprehensive Eye Examination</h3>
+          <p class="service-desc">Full visual acuity, pressure, and health assessment. Baseline and annual reviews for all ages from 5 upwards.</p>
+        </div>
 
-<footer>
-  <p>Lotilla Lara Optical Clinic</p>
-  <small>Built using Applied Engineering AI + Human Intelligence</small>
-</footer>
+        <div class="service-card">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="14" width="32" height="12" rx="6"/>
+              <circle cx="14" cy="20" r="4"/>
+              <circle cx="26" cy="20" r="4"/>
+              <line x1="10" y1="14" x2="8" y2="10"/>
+              <line x1="30" y1="14" x2="32" y2="10"/>
+            </svg>
+          </div>
+          <div class="service-badge">Precision</div>
+          <h3 class="service-title">Prescription Spectacles</h3>
+          <p class="service-desc">Single vision, bifocal, and progressive lenses. Fitted with accuracy and adjusted until they feel exactly right.</p>
+        </div>
 
+        <div class="service-card">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="20" cy="20" r="10"/>
+              <circle cx="20" cy="20" r="5"/>
+              <circle cx="20" cy="20" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
+          <div class="service-badge">Modern</div>
+          <h3 class="service-title">Contact Lens Fitting</h3>
+          <p class="service-desc">Daily, monthly, and specialist toric lenses. Trial period included. Follow-up fitting review at no additional cost.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6l3 9h9l-7.5 5.5 3 9L20 24l-7.5 5.5 3-9L8 15h9z"/>
+            </svg>
+          </div>
+          <div class="service-badge">Premium</div>
+          <h3 class="service-title">Designer Frame Styling</h3>
+          <p class="service-desc">Guided frame selection matched to your face shape, colouring, and lifestyle. Fashion and function, together.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 8c-6.6 0-12 5.4-12 12s5.4 12 12 12 12-5.4 12-12"/>
+              <path d="M28 8v8h-8"/>
+              <path d="M28 16l-8-8"/>
+            </svg>
+          </div>
+          <div class="service-badge">Care</div>
+          <h3 class="service-title">Children's Vision</h3>
+          <p class="service-desc">Specialist assessments for children from age 5. Early detection of amblyopia, strabismus, and learning-related vision issues.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="10" width="24" height="20" rx="3"/>
+              <path d="M14 20h12M14 16h8M14 24h6"/>
+            </svg>
+          </div>
+          <div class="service-badge">Technology</div>
+          <h3 class="service-title">Digital Eye Strain Clinic</h3>
+          <p class="service-desc">Assessment and correction for screen-related fatigue. Blue light filtering, workplace prescriptions, and ergonomic advice.</p>
+        </div>
+
+      </div>
+
+      <!-- Technology partner badges -->
+      <div class="tech-partners">
+        <span class="tech-badge">ZEISS CERTIFIED</span>
+        <span class="tech-divider" aria-hidden="true">·</span>
+        <span class="tech-badge">TRANSITIONS® PARTNER</span>
+        <span class="tech-divider" aria-hidden="true">·</span>
+        <span class="tech-badge">ESSILOR APPROVED</span>
+        <span class="tech-divider" aria-hidden="true">·</span>
+        <span class="tech-badge">HOYA PROFESSIONAL</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PATIENT TRANSFORMATION — NIKE LAYER
+  ============================================================ -->
+  <section class="section transform" id="transform" aria-label="Patient transformation story">
+    <div class="container transform-inner">
+      <p class="section-chapter">Chapter 04</p>
+      <div class="transform-quote">
+        <p>"The first morning I woke up and could read the clock on the wall — without reaching for my phone — I sat there for five minutes just looking at the room."</p>
+        <cite>— Marisol, 38 · progressive lenses, first pair</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FRAMES GALLERY
+  ============================================================ -->
+  <section class="section frames" id="frames" aria-labelledby="frames-heading">
+    <div class="container">
+      <p class="section-chapter">Chapter 05</p>
+      <div class="section-label" aria-hidden="true">Frame Collection</div>
+      <h2 class="section-title" id="frames-heading">
+        Frames that fit<br />
+        <em>your life.</em>
+      </h2>
+      <p class="section-intro">
+        Over 120 styles across every mood and occasion. From understated precision to bold statement — each frame is curated by Dr. Lara personally.
+      </p>
+
+      <div class="frames-grid">
+
+        <div class="frame-card frame-card--tall">
+          <!-- Replace: assets/images/frames/classic.jpg -->
+          <div class="frame-img-wrap">
+            <img src="assets/images/frames/classic.jpg" alt="Classic acetate frames — timeless tortoise collection"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="frame-img-fallback" aria-hidden="true"><span>Classic Collection</span></div>
+          </div>
+          <div class="frame-info">
+            <span class="frame-category">Classic</span>
+            <h3 class="frame-name">The Timeless Edit</h3>
+            <p class="frame-desc">Acetate and titanium. Shapes that have earned their permanence.</p>
+          </div>
+        </div>
+
+        <div class="frame-card">
+          <!-- Replace: assets/images/frames/minimal.jpg -->
+          <div class="frame-img-wrap">
+            <img src="assets/images/frames/minimal.jpg" alt="Minimal wire frames — slim and refined"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="frame-img-fallback" aria-hidden="true"><span>Minimal Collection</span></div>
+          </div>
+          <div class="frame-info">
+            <span class="frame-category">Minimal</span>
+            <h3 class="frame-name">Wire & Light</h3>
+            <p class="frame-desc">Slim profiles. Near-invisible presence.</p>
+          </div>
+        </div>
+
+        <div class="frame-card">
+          <!-- Replace: assets/images/frames/bold.jpg -->
+          <div class="frame-img-wrap">
+            <img src="assets/images/frames/bold.jpg" alt="Bold statement frames — architectural shapes"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="frame-img-fallback" aria-hidden="true"><span>Bold Collection</span></div>
+          </div>
+          <div class="frame-info">
+            <span class="frame-category">Statement</span>
+            <h3 class="frame-name">Architecture</h3>
+            <p class="frame-desc">For the ones who want to be seen.</p>
+          </div>
+        </div>
+
+        <div class="frame-card frame-card--wide">
+          <!-- Replace: assets/images/frames/kids.jpg -->
+          <div class="frame-img-wrap">
+            <img src="assets/images/frames/kids.jpg" alt="Children's frames — durable and colourful"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="frame-img-fallback" aria-hidden="true"><span>Junior Collection</span></div>
+          </div>
+          <div class="frame-info">
+            <span class="frame-category">Junior</span>
+            <h3 class="frame-name">Built to Last</h3>
+            <p class="frame-desc">Flexible, durable, and designed to be worn hard. For ages 5–16.</p>
+          </div>
+        </div>
+
+        <div class="frame-card">
+          <!-- Replace: assets/images/frames/sun.jpg -->
+          <div class="frame-img-wrap">
+            <img src="assets/images/frames/sun.jpg" alt="Prescription sunglasses — polarised and protective"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="frame-img-fallback" aria-hidden="true"><span>Sun Collection</span></div>
+          </div>
+          <div class="frame-info">
+            <span class="frame-category">Sun</span>
+            <h3 class="frame-name">Prescription Sunwear</h3>
+            <p class="frame-desc">Polarised. UV400. Made to your exact prescription.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="frames-cta">
+        <a href="#booking" class="btn btn-primary">Book a Frame Consultation</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PATIENT JOURNEY TIMELINE
+  ============================================================ -->
+  <section class="section journey sage-bg" id="journey" aria-labelledby="journey-heading">
+    <div class="container">
+      <p class="section-chapter">Chapter 06</p>
+      <div class="section-label" aria-hidden="true">Your Journey</div>
+      <h2 class="section-title" id="journey-heading">
+        From first visit<br />
+        <em>to clear vision.</em>
+      </h2>
+      <p class="section-intro">
+        Every patient follows the same careful path. Here is what to expect.
+      </p>
+
+      <div class="timeline" role="list">
+
+        <div class="timeline-item" role="listitem">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-card">
+            <div class="timeline-step">Step 01</div>
+            <h3 class="timeline-heading">Book Your Appointment</h3>
+            <p>Choose a time that suits you — online, by phone, or via WhatsApp. New patients receive a pre-visit health questionnaire by email.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" role="listitem">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-card">
+            <div class="timeline-step">Step 02</div>
+            <h3 class="timeline-heading">The Consultation</h3>
+            <p>A conversation first. We ask about your vision, your lifestyle, and your daily environment. Only then does the examination begin.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" role="listitem">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-card">
+            <div class="timeline-step">Step 03</div>
+            <h3 class="timeline-heading">Full Eye Examination</h3>
+            <p>Visual acuity, intraocular pressure, retinal health, and — where indicated — digital retinal photography. Thorough, unhurried, precise.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" role="listitem">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-card">
+            <div class="timeline-step">Step 04</div>
+            <h3 class="timeline-heading">Prescription & Guidance</h3>
+            <p>Your results, explained in plain language. Dr. Lara walks you through every finding and answers every question before moving forward.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" role="listitem">
+          <div class="timeline-dot timeline-dot--accent" aria-hidden="true"></div>
+          <div class="timeline-card timeline-card--accent">
+            <div class="timeline-step">Step 05</div>
+            <h3 class="timeline-heading">Frame Selection</h3>
+            <p>Guided styling session. We match frames to your face shape, colouring, and lifestyle — not just your prescription. Take your time. This part matters.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" role="listitem">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-card">
+            <div class="timeline-step">Step 06</div>
+            <h3 class="timeline-heading">Fitting & Collection</h3>
+            <p>Lenses precision-cut and fitted in-house. Collection appointment includes a final comfort and vision check. Adjustments made on the spot.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" role="listitem">
+          <div class="timeline-dot timeline-dot--future" aria-hidden="true"></div>
+          <div class="timeline-card timeline-card--future">
+            <div class="timeline-step">Ongoing</div>
+            <h3 class="timeline-heading">Annual Review & Aftercare</h3>
+            <p>Free frame adjustments for life. Annual review reminders sent automatically. You are a patient here, not a transaction.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       BOOKING MODULE
+  ============================================================ -->
+  <section class="section booking" id="booking" aria-labelledby="booking-heading">
+    <div class="container">
+      <p class="section-chapter">Chapter 07</p>
+      <div class="section-label" aria-hidden="true">Book Your Visit</div>
+      <h2 class="section-title" id="booking-heading">
+        Begin seeing<br />
+        <em>better today.</em>
+      </h2>
+
+      <div class="booking-grid">
+        <div class="booking-form-col">
+          <div class="booking-card">
+            <div class="booking-card-label">Appointment Request</div>
+            <div class="booking-fields">
+
+              <div class="field-row">
+                <div class="field-group">
+                  <label for="b-name">Full Name</label>
+                  <input type="text" id="b-name" name="name" placeholder="Your name" autocomplete="name" />
+                </div>
+                <div class="field-group">
+                  <label for="b-phone">Phone Number</label>
+                  <input type="tel" id="b-phone" name="phone" placeholder="+1 000 000 0000" autocomplete="tel" />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="b-email">Email Address</label>
+                <input type="email" id="b-email" name="email" placeholder="your@email.com" autocomplete="email" />
+              </div>
+
+              <div class="field-group">
+                <label for="b-service">Type of Appointment</label>
+                <select id="b-service" name="service">
+                  <option value="">Select a service…</option>
+                  <option value="exam">Full Eye Examination</option>
+                  <option value="contact">Contact Lens Fitting</option>
+                  <option value="frame">Frame Styling Consultation</option>
+                  <option value="children">Children's Assessment</option>
+                  <option value="digital">Digital Eye Strain Clinic</option>
+                  <option value="review">Annual Review</option>
+                  <option value="other">Other / Not Sure</option>
+                </select>
+              </div>
+
+              <div class="field-row">
+                <div class="field-group">
+                  <label for="b-date">Preferred Date</label>
+                  <input type="date" id="b-date" name="date" />
+                </div>
+                <div class="field-group">
+                  <label for="b-time">Preferred Time</label>
+                  <select id="b-time" name="time">
+                    <option value="">Any time</option>
+                    <option value="morning">Morning (9am–12pm)</option>
+                    <option value="afternoon">Afternoon (12pm–5pm)</option>
+                    <option value="late">Late afternoon (5pm–7pm)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="b-notes">Anything we should know?</label>
+                <textarea id="b-notes" name="notes" rows="3" placeholder="Current glasses, any eye concerns, children's details…"></textarea>
+              </div>
+
+              <button type="button" class="btn btn-booking" id="bookingSubmit" onclick="submitBooking()">
+                Request Appointment
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+
+              <p class="booking-note">We will confirm your appointment within 24 hours by phone or email.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="booking-info-col">
+          <div class="booking-info-card">
+            <div class="info-block">
+              <div class="info-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              </div>
+              <div>
+                <div class="info-label">Clinic Address</div>
+                <!-- Replace with actual address -->
+                <div class="info-value">123 Vision Street<br />Your City, Province 00000</div>
+              </div>
+            </div>
+            <div class="info-block">
+              <div class="info-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div>
+                <div class="info-label">Opening Hours</div>
+                <div class="info-value">Mon–Fri: 9am – 7pm<br />Saturday: 9am – 5pm<br />Sunday: Closed</div>
+              </div>
+            </div>
+            <div class="info-block">
+              <div class="info-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.1 2.18a2 2 0 012-2.18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11l-1.27 1.27a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7 2 2 0 011.72 2z"/></svg>
+              </div>
+              <div>
+                <div class="info-label">Phone</div>
+                <!-- Replace with actual phone number -->
+                <div class="info-value"><a href="tel:+10000000000">+1 (000) 000-0000</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       WHATSAPP CTA BAND
+  ============================================================ -->
+  <section class="section whatsapp-band" id="whatsapp" aria-label="WhatsApp contact">
+    <div class="container whatsapp-inner">
+      <div class="whatsapp-text">
+        <h3 class="whatsapp-title">Prefer to message us?</h3>
+        <p class="whatsapp-sub">Send a WhatsApp. We reply within the hour during clinic hours.</p>
+      </div>
+      <!-- Replace href with actual WhatsApp business number -->
+      <a href="https://wa.me/10000000000?text=Hello%2C%20I%27d%20like%20to%20book%20an%20appointment%20at%20Lotilla%20Lara%20Optical."
+         target="_blank" rel="noopener noreferrer"
+         class="btn btn-whatsapp"
+         aria-label="Chat with us on WhatsApp">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Chat on WhatsApp
+      </a>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SPOTIFY SECTION
+  ============================================================ -->
+  <section class="section spotify-section" id="spotify" aria-labelledby="spotify-heading">
+    <div class="container spotify-inner">
+      <div class="spotify-text">
+        <p class="section-chapter">A small detail</p>
+        <h3 class="spotify-title" id="spotify-heading">Music while you wait.</h3>
+        <p class="spotify-sub">
+          We believe an appointment should feel like a good afternoon. Follow the clinic playlist — the same music playing in the waiting room.
+        </p>
+        <!-- Replace with actual Spotify playlist link -->
+        <a href="https://open.spotify.com/playlist/your-playlist-id" target="_blank" rel="noopener noreferrer" class="btn btn-spotify">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          Open Clinic Playlist
+        </a>
+      </div>
+      <div class="spotify-visual" aria-hidden="true">
+        <!-- Replace with actual Spotify embed iframe -->
+        <div class="spotify-embed-placeholder">
+          <div class="spotify-bars">
+            <span style="--h:60%"></span>
+            <span style="--h:85%"></span>
+            <span style="--h:45%"></span>
+            <span style="--h:95%"></span>
+            <span style="--h:70%"></span>
+            <span style="--h:55%"></span>
+            <span style="--h:80%"></span>
+            <span style="--h:40%"></span>
+            <span style="--h:65%"></span>
+            <span style="--h:90%"></span>
+            <span style="--h:50%"></span>
+            <span style="--h:75%"></span>
+          </div>
+          <p>Spotify embed</p>
+          <small>Replace with iframe from Spotify</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONTACT
+  ============================================================ -->
+  <section class="section contact" id="contact" aria-labelledby="contact-heading">
+    <div class="container">
+      <div class="section-label" aria-hidden="true">Find Us</div>
+      <h2 class="section-title" id="contact-heading">
+        Come and see us.<br />
+        <em>We are ready for you.</em>
+      </h2>
+
+      <div class="contact-grid">
+        <div class="contact-map-placeholder" aria-label="Clinic location map placeholder">
+          <!-- Replace with Google Maps embed iframe -->
+          <div class="map-placeholder-inner">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            <p>Map embed goes here</p>
+            <small>Replace with &lt;iframe&gt; from Google Maps</small>
+          </div>
+        </div>
+        <div class="contact-details">
+          <div class="contact-item">
+            <span class="contact-label">Address</span>
+            <!-- Replace with actual address -->
+            <span class="contact-value">123 Vision Street, Your City<br />Province, Postal Code</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Telephone</span>
+            <!-- Replace with actual phone number -->
+            <span class="contact-value"><a href="tel:+10000000000">+1 (000) 000-0000</a></span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Email</span>
+            <!-- Replace with actual email -->
+            <span class="contact-value"><a href="mailto:hello@lotillalara.com">hello@lotillalara.com</a></span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-label">Hours</span>
+            <span class="contact-value">Monday – Friday: 9am – 7pm<br />Saturday: 9am – 5pm</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER SIGN-OFF
+  ============================================================ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span class="footer-mark" aria-hidden="true">◎</span>
+        <span class="footer-brand">Lotilla Lara Optical</span>
+      </div>
+      <div class="footer-signoff">
+        <p>
+          Every pair of eyes tells a different story.<br />
+          We have the privilege of helping people see theirs more clearly.<br />
+          <em>That is why we are here.</em>
+        </p>
+        <cite>— Dr. Lotilla Lara</cite>
+      </div>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="#story">Our Story</a>
+        <span aria-hidden="true">·</span>
+        <a href="#services">Services</a>
+        <span aria-hidden="true">·</span>
+        <a href="#frames">Frames</a>
+        <span aria-hidden="true">·</span>
+        <a href="#booking">Book Now</a>
+      </nav>
+      <div class="footer-legal">
+        <!-- Replace with actual registration / regulatory details -->
+        Registered Optometry Practice · All examinations conducted by qualified optometrists
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp floating button -->
+  <a href="https://wa.me/10000000000?text=Hello%2C%20I%27d%20like%20to%20book%20an%20appointment."
+     class="whatsapp-float"
+     target="_blank"
+     rel="noopener noreferrer"
+     aria-label="Chat with us on WhatsApp"
+     id="waFloat">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <script src="script.js"></script>
 </body>
 </html>
