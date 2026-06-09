@@ -1,206 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lotilla-Lara Optical Booking</title>
-  <link rel="icon" href="Logo6.jpg" type="image/jpg">
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-    }
-    h2, h3 {
-      text-align: center;
-      color: #2d2d2d;
-    }
-    .clinic-logo {
-      text-align: center;
-      margin-bottom: 10px;
-      animation: bounce 2s infinite;
-    }
-    .clinic-logo img {
-      max-width: 180px;
-      height: auto;
-      transition: transform 0.3s ease;
-    }
-    .clinic-logo img:hover {
-      transform: scale(1.05);
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-    .slogan {
-      text-align: center;
-      font-style: italic;
-      color: #555;
-      margin-bottom: 10px;
-    }
-    form {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.05);
-    }
-    input, select, textarea, button {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
-    }
-    button {
-      background: #4CAF50;
-      color: white;
-      font-weight: bold;
-      border: none;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-    button:hover {
-      background: #3e8e41;
-      transform: scale(1.02);
-    }
-    .slideshow-container {
-      position: relative;
-      max-width: 100%;
-      margin: 30px auto;
-    }
-    .mySlides {
-      display: none;
-    }
-    .mySlides img {
-      width: 100%;
-      border-radius: 8px;
-    }
-    .qr-section, .contact-info, .spotify-embed {
-      text-align: center;
-      margin-top: 25px;
-    }
-    .qr-section img {
-      width: 160px;
-      height: 160px;
-      border-radius: 12px;
-      border: 2px solid #eee;
-    }
-    .whatsapp-btn {
-      display: block;
-      text-align: center;
-      background: #25D366;
-      color: white;
-      padding: 14px;
-      font-weight: bold;
-      border-radius: 8px;
-      text-decoration: none;
-      margin-top: 20px;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-    .whatsapp-btn:hover {
-      background: #1ebf5b;
-      transform: scale(1.03);
-    }
-    .contact-info a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .contact-info a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lotilla Lara Optical Clinic</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- Logo -->
-<a href="https://goo.gl/maps/K3mGXrUXVa9pWTbd9" class="clinic-logo" title="Visit Us at Isulan Public Market">
-  <img src="Logo6.jpg" alt="Lotilla-Lara Optical Clinic Logo">
-</a>
+<header class="site-header">
+  <nav class="navbar">
+    <div class="brand">
+      <img src="assets/images/hero/Logo6.jpg" alt="Lotilla Lara Optical Clinic Logo">
+      <span>Lotilla Lara Optical Clinic</span>
+    </div>
 
-<!-- Slogan -->
-<div class="slogan">That cares your eyes!</div>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#gallery">Frames</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+</header>
 
-<!-- Booking Header -->
-<h2>Book Your Eye Checkup</h2>
+<section class="hero">
+  <div class="hero-text">
+    <p class="eyebrow">Family Optical Care</p>
+    <h1>Clear Vision.<br>Personal Care.<br>Community Trust.</h1>
+    <p class="hero-subtitle">
+      Professional optical services for individuals and families.
+    </p>
 
-<!-- Booking Form -->
-<form action="https://docs.google.com/forms/d/e/1FAIpQLScjz02CEkY-p1p6T_oVGiM1KTKavZbHxSGDki4CU4O9IcyO_g/formResponse" method="POST" target="_blank">
-  <input type="text" name="entry.2005620554" placeholder="Full Name" required>
-  <input type="tel" name="entry.1166974658" placeholder="Phone Number" required>
-  <input type="date" name="entry.1065046570" required>
-  <select name="entry.1045781291" required>
-    <option value="">-- Select Time Slot --</option>
-    <option value="Break Time">Break Time</option>
-    <option value="No Clinic">No Clinic</option>
-    <option value="09:00 AM">09:00 AM</option>
-    <option value="09:30 AM">09:30 AM</option>
-    <option value="10:00 AM">10:00 AM</option>
-    <option value="10:30 AM">10:30 AM</option>
-    <option value="11:00 AM">11:00 AM</option>
-    <option value="11:30 AM">11:30 AM</option>
-    <option value="01:00 PM">01:00 PM</option>
-    <option value="01:30 PM">01:30 PM</option>
-    <option value="02:00 PM">02:00 PM</option>
-    <option value="02:30 PM">02:30 PM</option>
-    <option value="03:00 PM">03:00 PM</option>
-    <option value="03:30 PM">03:30 PM</option>
-    <option value="04:00 PM">04:00 PM</option>
-    <option value="04:30 PM">04:30 PM</option>
-  </select>
-  <textarea name="entry.839337160" placeholder="Remarks / Symptoms"></textarea>
-  <button type="submit">Submit Booking</button>
-</form>
+    <div class="hero-buttons">
+      <a href="#services" class="btn primary">View Services</a>
+      <a href="#contact" class="btn secondary">Contact Clinic</a>
+    </div>
+  </div>
 
-<!-- Gallery Slideshow -->
-<h3>Eyewear Frame Gallery</h3>
-<div class="slideshow-container">
-  <div class="mySlides"><img src="LL1.jpg" alt="Frame 1"></div>
-  <div class="mySlides"><img src="LL2.jpg" alt="Frame 2"></div>
-  <div class="mySlides"><img src="LL3.jpg" alt="Frame 3"></div>
-  <div class="mySlides"><img src="LL4.jpg" alt="Frame 4"></div>
-  <div class="mySlides"><img src="LL5.jpg" alt="Frame 5"></div>
-  <div class="mySlides"><img src="LL6.jpg" alt="Frame 6"></div>
-  <div class="mySlides"><img src="LL7.jpg" alt="Frame 7"></div>
-</div>
+  <div class="hero-image">
+    <img src="assets/images/hero/LL1.jpg" alt="Optical clinic hero image">
+  </div>
+</section>
 
-<!-- QR Section -->
-<div class="qr-section">
-  <p>Scan to Book:</p>
-  <img src="your-qr-code.png" alt="QR Code to book online">
-</div>
+<section class="about section">
+  <div class="section-text">
+    <p class="eyebrow">About The Clinic</p>
+    <h2>Local care with a family touch.</h2>
+    <p>
+      Lotilla Lara Optical Clinic is built on trust, service, and practical care.
+      We help families and individuals find better vision through professional
+      support, quality frames, and personal attention.
+    </p>
+    <p>
+      Our goal is simple: make every patient feel seen, guided, and confident.
+    </p>
+  </div>
+</section>
 
-<!-- WhatsApp Button -->
-<a class="whatsapp-btn" href="https://wa.me/639672710883?text=Hello%20Dra.%20Lara%2C%20I%20would%20like%20to%20book%20an%20eye%20appointment">📱 Message via WhatsApp</a>
+<section id="services" class="services section">
+  <p class="eyebrow center">Our Services</p>
+  <h2 class="center">Optical care made simple.</h2>
 
-<!-- Spotify Embed -->
-<div class="spotify">
-  <h3>Listening to: Your Playlist</h3>
-  <iframe src="https://open.spotify.com/embed/playlist/3UDyrkZLkCuqXxFbxV72I8" width="100%" height="80" frameborder="0" allow="autoplay; encrypted-media" loading="lazy"></iframe>
-</div>
+  <div class="card-grid">
+    <div class="card">Eye Examination</div>
+    <div class="card">Prescription Glasses</div>
+    <div class="card">Reading Glasses</div>
+    <div class="card">Lens Replacement</div>
+    <div class="card">Frame Consultation</div>
+    <div class="card">Optical Support</div>
+  </div>
+</section>
 
-<!-- Contact Info -->
-<div class="contact-info">
-  <p>Email: <a href="mailto:laraeldie1956@gmail.com">laraeldie1956@gmail.com</a></p>
-  <p>WhatsApp: <a href="https://wa.me/639672710883">+63-967-271-0883</a></p>
-</div>
+<section id="gallery" class="gallery section">
+  <p class="eyebrow center">Featured Frames</p>
+  <h2 class="center">Frames for everyday confidence.</h2>
 
-<!-- Slideshow Script -->
-<script>
-let slideIndex = 0;
-carousel();
-function carousel() {
-  let i;
-  let slides = document.getElementsByClassName("mySlides");
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none"; 
-  }
-  slideIndex++;
-  if (slideIndex > slides.length) {slideIndex = 1} 
-  slides[slideIndex-1].style.display = "block"; 
-  setTimeout(carousel, 3000); // Change image every 3 sec
-}
-</script>
+  <div class="image-grid">
+    <img src="assets/images/gallery/LL2.jpg" alt="Optical frame 1">
+    <img src="assets/images/gallery/LL3.jpg" alt="Optical frame 2">
+    <img src="assets/images/gallery/LL4.jpg" alt="Optical frame 3">
+    <img src="assets/images/gallery/LL5.jpg" alt="Optical frame 4">
+    <img src="assets/images/gallery/LL6.jpg" alt="Optical frame 5">
+    <img src="assets/images/gallery/LL7.jpg" alt="Optical frame 6">
+  </div>
+</section>
+
+<section class="why section">
+  <p class="eyebrow center">Why Patients Choose Us</p>
+  <h2 class="center">Care you can feel. Quality you can trust.</h2>
+
+  <div class="card-grid">
+    <div class="card">Personalized Care</div>
+    <div class="card">Quality Frames</div>
+    <div class="card">Friendly Service</div>
+    <div class="card">Community Trust</div>
+    <div class="card">Professional Experience</div>
+    <div class="card">Practical Solutions</div>
+  </div>
+</section>
+
+<section id="contact" class="contact section">
+  <div class="contact-card">
+    <p class="eyebrow">Visit Us</p>
+    <h2>Book Your Visit</h2>
+
+    <p><strong>Address:</strong> Add clinic address here</p>
+    <p><strong>Phone:</strong> Add phone number here</p>
+    <p><strong>Email:</strong> Add email here</p>
+    <p><strong>Facebook:</strong> Add Facebook page here</p>
+    <p><strong>Opening Hours:</strong> Add clinic hours here</p>
+
+    <a href="#" class="btn primary">Contact Clinic</a>
+  </div>
+</section>
+
+<footer>
+  <p>Lotilla Lara Optical Clinic</p>
+  <small>Built using Applied Engineering AI + Human Intelligence</small>
+</footer>
 
 </body>
 </html>
