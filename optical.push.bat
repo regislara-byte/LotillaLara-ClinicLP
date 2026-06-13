@@ -20,7 +20,7 @@ echo =====================================
 echo.
 
 echo Waiting for GitHub Pages update...
-timeout /t 5 >nul
+sleep 5 >nul
 
 echo.
 echo Opening Repository...
