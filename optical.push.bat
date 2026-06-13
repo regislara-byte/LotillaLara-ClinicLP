@@ -16,7 +16,7 @@ echo       DEPLOY COMPLETE
 echo =================================
 echo.
 
-start https://github.com/regislara-byte/LotillaLara-ClinicLP
+start https://github.com/regislara-byte.github.io/LL-Optical-v2/
 
 echo.
 echo Opening GitHub Repository...
