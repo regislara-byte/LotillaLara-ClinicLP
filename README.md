@@ -1,45 +1,82 @@
 # 👓 Lotilla-Lara Optical Clinic
 
-Welcome to the official **Lotilla-Lara Optical Clinic** online showcase!  
-Caring for your eyes with style and precision.
+## That Cares Your Eyes.
+
+A modern optical clinic landing page designed to showcase eye care services, premium eyewear collections, and patient-friendly appointment booking.
+
+Built as a lightweight GitHub Pages project with a focus on trust, simplicity, and visual storytelling.
 
 ---
 
-## 📅 Clinic Schedule
-**Open Days:** Sunday to Friday  
-**Doctor:** Dra. Eldie L. Lara  
-📧 Email: laraeldie1956@gmail.com  
-📞 WhatsApp: +63-967-271-0883
+## 🌟 Features
+
+- Premium Eyewear Gallery
+- Mobile-Friendly Layout
+- Appointment Booking Section
+- WhatsApp Contact Integration
+- Clean Modern Optical Branding
+- GitHub Pages Deployment
 
 ---
 
-## 🖼️ Frames Gallery Slide Show (More New Frames)
-Explore our curated collection of high-quality eyeglass frames:
-- LL1 – Retro Mix
-- LL2 – Sleek Metal
-- LL3 – Classic Black
-- LL4 – Chic Rose + Profile
-- LL5 – Minimalist Mix
-- LL6 – Full Color Spread
-- LL7 – Rounded Casuals
+## 👩‍⚕️ Clinic Information
 
-Each photo is available in full resolution for closer inspection.
+**Clinic Name:** Lotilla-Lara Optical Clinic
 
----
+**Doctor:** Dra. Eldie L. Lara
 
-## 🌐 Live Page
-The site is available via GitHub Pages:  
-**https://regislara-byte.github.io/LL-Optical-v2**  
-*(Replace `yourusername` with your actual GitHub username.)*
+**Schedule:** Sunday – Friday
+
+**Email:** laraeldie1956@gmail.com
+
+**WhatsApp:** +63 967 271 0883
 
 ---
 
-## 📌 Assets
-- `index.html`: Main booking + gallery page.
-- `Logo6.jpg`: Clinic’s official logo.
-- `README.md`: This documentation file.
+## 🖼️ Featured Collections
+
+### Premium Collection
+- LL16 — Premium Eyeglasses
+- LL17 — Designer Collection
+- LL18 — Look Is Everything
+
+### Specialty Collections
+- LL19 — Pediatric Collection
+- LL20 — Sports & Active Collection
+
+Designed for:
+- Everyday Wear
+- Long Screen Hours
+- Children's Vision Care
+- Active Lifestyle Protection
 
 ---
 
-Made with ❤️ by **VAXINX (Regis Lara)**  
-Powered by GitHub Pages and your vision.
+## 🌐 Live Website
+
+GitHub Pages:
+
+https://regislara-byte.github.io/LotillaLara-ClinicLP/
+
+---
+
+## 📂 Project Structure
+
+```text
+LL-OPTICALV2/
+│
+├── assets/
+│   ├── images/
+│   │   ├── hero/
+│   │   └── gallery/
+│   │
+│   ├── icons/
+│   └── vids/
+│
+├── docs/
+├── updates/
+│
+├── index.html
+├── style.css
+├── README.md
+└── optical.push.bat
