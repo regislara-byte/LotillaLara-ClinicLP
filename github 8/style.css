@@ -369,17 +369,15 @@ ul[role="list"] { list-style: none; }
   position: absolute;
   inset: 0;
   z-index: 0;
-  /* Full-bleed background approach — eliminates all side gaps */
-  background-color: #e8b9a8;
-  background-image: url('assets/images/hero/eylotlhero7.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: 60% center; /* Keep EYLOTL body in frame, right-biased */
 }
 
 .hero-img {
-  /* Hidden — bg-image approach handles display */
-  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;           /* Changed to contain to prevent cropping */
+  object-position: right center; /* Full character on the right */
+  will-change: transform;
+  padding: 5% 8% 5% 0;           /* Breathing room around mascot */
 }
 
 .hero-overlay {
@@ -466,8 +464,9 @@ ul[role="list"] { list-style: none; }
     text-align: center;
     gap: var(--sp-6);
   }
-  .hero-bg {
-    background-position: 55% center;
+  .hero-img {
+    object-position: center 38%;
+    padding: 8% 5%;
   }
 }
 
@@ -478,8 +477,8 @@ ul[role="list"] { list-style: none; }
   .hero-title {
     font-size: clamp(2.9rem, 8.5vw, 4.4rem);
   }
-  .hero-bg {
-    background-position: 50% center;
+  .hero-img {
+    padding: 10% 8%;
   }
 }
 
