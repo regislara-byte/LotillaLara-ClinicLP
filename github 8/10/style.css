@@ -374,7 +374,7 @@ ul[role="list"] { list-style: none; }
   background-image: url('assets/images/hero/eylotlhero7.png');
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: 55% center; /* Slightly left of 60% — better text/character balance */
+  background-position: 60% center; /* Keep EYLOTL body in frame, right-biased */
 }
 
 .hero-img {
