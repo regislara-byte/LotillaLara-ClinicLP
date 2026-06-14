@@ -66,64 +66,19 @@ window.addEventListener('scroll', updateActiveNav, { passive: true });
 
 
 /* ────────────────────────────────────────────────────────────────
-   3. IMPLEMENTATION_007 MOTION SYSTEM
-   ML-003 · Hover Tilt (desktop only)
-   ML-004 · Scroll Parallax
+   3. HERO PARALLAX (subtle)
 ──────────────────────────────────────────────────────────────── */
-const heroBg    = document.querySelector('.hero-bg');
-const heroSection = document.querySelector('.hero');
+const heroBg = document.querySelector('.hero-bg');
 const heroContent = document.querySelector('.hero-content');
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ML-004 · Scroll Parallax — translates hero-bg on scroll for depth */
-if (heroBg && !reducedMotion) {
-  let bobBase = 0; // track CSS animation offset separately via scroll only
+if (heroBg && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   window.addEventListener('scroll', () => {
     const y = window.scrollY;
     if (y < window.innerHeight) {
-      /* Parallax shift — gentle 0.15 factor, no bob interference */
-      heroBg.style.backgroundPositionY = `calc(center + ${y * 0.15}px)`;
-      heroContent.style.opacity = Math.max(0.4, 1 - (y / (window.innerHeight * 0.85)));
+      heroBg.style.transform = `translateY(${y * 0.18}px)`;
+      heroContent.style.opacity = Math.max(0.4, 1 - (y / (window.innerHeight * 0.8)));
     }
   }, { passive: true });
-}
-
-/* ML-003 · Hover Tilt — desktop pointer follow, max ±3deg */
-if (heroSection && heroBg && !reducedMotion && window.matchMedia('(hover: hover)').matches) {
-  let tiltActive = false;
-  let rafId = null;
-  let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
-
-  heroSection.addEventListener('mousemove', (e) => {
-    const rect = heroSection.getBoundingClientRect();
-    const cx = rect.left + rect.width  / 2;
-    const cy = rect.top  + rect.height / 2;
-    /* Normalise to -1 → +1 */
-    targetX = ((e.clientX - cx) / (rect.width  / 2)) * 3;  /* max 3deg */
-    targetY = ((e.clientY - cy) / (rect.height / 2)) * 1.5; /* max 1.5deg */
-    if (!tiltActive) {
-      tiltActive = true;
-      animateTilt();
-    }
-  }, { passive: true });
-
-  heroSection.addEventListener('mouseleave', () => {
-    targetX = 0;
-    targetY = 0;
-  }, { passive: true });
-
-  function animateTilt() {
-    /* Lerp for smooth easing */
-    currentX += (targetX - currentX) * 0.06;
-    currentY += (targetY - currentY) * 0.06;
-    heroBg.style.transform = `rotate3d(${-currentY * 0.1}, ${currentX * 0.1}, 0, ${Math.sqrt(currentX**2 + currentY**2) * 0.4}deg)`;
-    if (Math.abs(targetX - currentX) > 0.01 || Math.abs(targetY - currentY) > 0.01) {
-      rafId = requestAnimationFrame(animateTilt);
-    } else {
-      tiltActive = false;
-      heroBg.style.transform = '';
-    }
-  }
 }
 
 
