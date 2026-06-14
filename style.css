@@ -355,10 +355,11 @@ ul[role="list"] { list-style: none; }
 .nav-mobile a:last-child { border-bottom: none; }
 
 /* ── HERO ── */
+/* ── HERO ── */
 .hero {
   position: relative;
   height: 100svh;
-  min-height: 620px;
+  min-height: 640px;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -373,9 +374,10 @@ ul[role="list"] { list-style: none; }
 .hero-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 45%; /* Adjusted for full character */
+  object-fit: contain;           /* Changed to contain to prevent cropping */
+  object-position: right center; /* Full character on the right */
   will-change: transform;
+  padding: 5% 8% 5% 0;           /* Breathing room around mascot */
 }
 
 .hero-overlay {
@@ -383,9 +385,9 @@ ul[role="list"] { list-style: none; }
   inset: 0;
   background: linear-gradient(
     160deg,
-    rgba(8,11,16,0.78) 0%,
-    rgba(8,11,16,0.45) 45%,
-    rgba(8,11,16,0.65) 100%
+    rgba(8,11,16,0.82) 0%,
+    rgba(8,11,16,0.48) 48%,
+    rgba(8,11,16,0.68) 100%
   );
 }
 
@@ -418,7 +420,7 @@ ul[role="list"] { list-style: none; }
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(3.2rem, 6.5vw, 5.8rem);
+  font-size: clamp(3.4rem, 6.8vw, 5.8rem);
   font-weight: 300;
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -431,7 +433,7 @@ ul[role="list"] { list-style: none; }
 }
 
 .hero-lead {
-  font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+  font-size: clamp(1.05rem, 1.8vw, 1.22rem);
   color: rgba(255,255,255,0.78);
   line-height: 1.65;
   margin-bottom: var(--sp-6);
@@ -455,16 +457,16 @@ ul[role="list"] { list-style: none; }
   clip-path: polygon(0% 60%, 3% 45%, 6% 58%, 9% 40%, 13% 55%, 17% 35%, 21% 50%, 25% 38%, 29% 52%, 33% 42%, 37% 58%, 41% 40%, 45% 55%, 49% 38%, 53% 52%, 57% 42%, 61% 56%, 65% 38%, 69% 52%, 73% 40%, 77% 56%, 81% 42%, 85% 55%, 89% 40%, 93% 54%, 97% 42%, 100% 52%, 100% 100%, 0% 100%);
 }
 
-/* Mobile adjustments */
+/* Responsive */
 @media (max-width: 1024px) {
   .hero-content {
     grid-template-columns: 1fr;
     text-align: center;
     gap: var(--sp-6);
   }
-  
   .hero-img {
     object-position: center 38%;
+    padding: 8% 5%;
   }
 }
 
@@ -473,7 +475,10 @@ ul[role="list"] { list-style: none; }
     min-height: 580px;
   }
   .hero-title {
-    font-size: clamp(2.8rem, 8vw, 4.2rem);
+    font-size: clamp(2.9rem, 8.5vw, 4.4rem);
+  }
+  .hero-img {
+    padding: 10% 8%;
   }
 }
 
