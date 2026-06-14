@@ -355,6 +355,7 @@ ul[role="list"] { list-style: none; }
 .nav-mobile a:last-child { border-bottom: none; }
 
 /* ── HERO ── */
+/* ── HERO ── */
 .hero {
   position: relative;
   height: 100svh;
