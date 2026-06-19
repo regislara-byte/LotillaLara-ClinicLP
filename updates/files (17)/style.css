@@ -355,6 +355,7 @@ ul[role="list"] { list-style: none; }
 .nav-mobile a:last-child { border-bottom: none; }
 
 /* ── HERO ── */
+/* ── HERO ── */
 .hero {
   position: relative;
   height: 100svh;
@@ -369,13 +370,10 @@ ul[role="list"] { list-style: none; }
   inset: 0;
   z-index: 0;
   background-color: #e8b9a8;
-  /* EYLOTL™ — full character visible (legs + hands), no crop.
-     contain + right bottom keeps the full running pose in frame.
-     Text safe zone: left 44% of viewport. */
-  background-image: url('assets/images/hero/hero91.png');
+  background-image: url('assets/images/hero/eylotlhero7.png');
   background-repeat: no-repeat;
-  background-size: contain;
-  background-position: right bottom;
+  background-size: cover;
+  background-position: 55% center;
   /* ML-001: Idle Bob */
   animation: eylotl-bob 4.2s ease-in-out infinite;
   will-change: transform;
@@ -397,13 +395,12 @@ ul[role="list"] { list-style: none; }
 }
 
 /* ML-002 · EYE BLINK
-   Position tuned for contain + right-bottom layout.
-   Eye sits roughly 28–40% from right, 22–34% from top at desktop. */
+   Pseudo-overlay matched to EYLOTL eye position */
 .hero-blink {
   position: absolute;
-  top: 26%;
-  right: 28%;
-  width: 14%;
+  top: 18%;
+  right: 20%;
+  width: 18%;
   aspect-ratio: 1 / 0.28;
   border-radius: 50%;
   background: #c09080;
@@ -477,15 +474,11 @@ ul[role="list"] { list-style: none; }
 .hero-overlay {
   position: absolute;
   inset: 0;
-  /* Left side: dark for text legibility.
-     Right side: transparent so EYLOTL™ character reads cleanly
-     against the warm peach background. */
   background: linear-gradient(
-    100deg,
-    rgba(8,11,16,0.88) 0%,
-    rgba(8,11,16,0.72) 35%,
-    rgba(8,11,16,0.28) 58%,
-    rgba(8,11,16,0.00) 75%
+    160deg,
+    rgba(8,11,16,0.82) 0%,
+    rgba(8,11,16,0.48) 48%,
+    rgba(8,11,16,0.68) 100%
   );
 }
 
@@ -497,8 +490,6 @@ ul[role="list"] { list-style: none; }
   padding: 0 var(--sp-4);
   padding-top: var(--nav-h);
   width: 100%;
-  /* Left cell: hero text. Right cell: open visual space for EYLOTL™
-     character which bleeds in from the background layer. */
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--sp-8);
@@ -557,143 +548,27 @@ ul[role="list"] { list-style: none; }
   clip-path: polygon(0% 60%, 3% 45%, 6% 58%, 9% 40%, 13% 55%, 17% 35%, 21% 50%, 25% 38%, 29% 52%, 33% 42%, 37% 58%, 41% 40%, 45% 55%, 49% 38%, 53% 52%, 57% 42%, 61% 56%, 65% 38%, 69% 52%, 73% 40%, 77% 56%, 81% 42%, 85% 55%, 89% 40%, 93% 54%, 97% 42%, 100% 52%, 100% 100%, 0% 100%);
 }
 
-/* ── HERO RESPONSIVE — EYLOTL™ full character display
-   Guide: show entire character (legs + hands) at all viewport sizes.
-   Strategy: adjust background-size + position per breakpoint so the
-   character never gets cropped regardless of device orientation.
-──────────────────────────────────────────────────────────────── */
-
-/* TABLET LANDSCAPE (1024px and below, wide aspect) */
+/* Responsive */
 @media (max-width: 1024px) {
   .hero-content {
     grid-template-columns: 1fr;
     text-align: center;
     gap: var(--sp-6);
   }
-  /* Character: shrink slightly and shift right so text stays readable */
   .hero-bg {
-    background-size: 56% auto;
-    background-position: right bottom;
-  }
-  /* Overlay: extend dark zone to cover full width since text is centered */
-  .hero-overlay {
-    background: linear-gradient(
-      160deg,
-      rgba(8,11,16,0.88) 0%,
-      rgba(8,11,16,0.70) 40%,
-      rgba(8,11,16,0.55) 70%,
-      rgba(8,11,16,0.40) 100%
-    );
-  }
-  /* Blink: adjust for smaller character footprint */
-  .hero-blink {
-    width: 11%;
-    top: 28%;
-    right: 22%;
+    background-position: 55% center;
   }
 }
 
-/* TABLET PORTRAIT / LANDSCAPE ≤768px */
 @media (max-width: 768px) {
   .hero {
-    min-height: 640px; /* enough height to show full running legs */
+    min-height: 580px;
   }
   .hero-title {
     font-size: clamp(2.9rem, 8.5vw, 4.4rem);
   }
-  /* Character takes right 70% of width, sized to show from head to toe */
   .hero-bg {
-    background-size: 70% auto;
-    background-position: right bottom;
-  }
-  .hero-overlay {
-    background: linear-gradient(
-      180deg,
-      rgba(8,11,16,0.82) 0%,
-      rgba(8,11,16,0.68) 45%,
-      rgba(8,11,16,0.50) 75%,
-      rgba(8,11,16,0.36) 100%
-    );
-  }
-  .hero-blink {
-    width: 13%;
-    top: 25%;
-    right: 18%;
-  }
-}
-
-/* MOBILE PORTRAIT — 480px and below
-   Guide: 1080×1920 treatment — character sits top-right,
-   text sits in lower-left safe zone, legs fully visible at bottom */
-@media (max-width: 480px) {
-  .hero {
-    min-height: 100svh; /* full viewport height for portrait phones */
-    align-items: flex-end; /* text anchors to bottom */
-  }
-  .hero-content {
-    padding-bottom: var(--sp-8);
-    align-items: flex-end;
-    text-align: left;
-  }
-  /* Character: full width at 95% so legs reach near the bottom edge */
-  .hero-bg {
-    background-size: 95% auto;
-    background-position: center bottom;
-  }
-  .hero-overlay {
-    /* Top: lighter so character head/glasses read clearly
-       Bottom: darker band so text is legible over the legs area */
-    background: linear-gradient(
-      180deg,
-      rgba(8,11,16,0.22) 0%,
-      rgba(8,11,16,0.18) 40%,
-      rgba(8,11,16,0.75) 72%,
-      rgba(8,11,16,0.92) 100%
-    );
-  }
-  .hero-blink {
-    width: 18%;
-    top: 12%;
-    right: 4%;
-  }
-  .hero-actions {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
-  .hero-actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-/* DEVICE ORIENTATION: LANDSCAPE on small phones (short + wide)
-   Prevents character being cropped when phone is rotated */
-@media (max-height: 500px) and (orientation: landscape) {
-  .hero {
-    min-height: 100svh;
-    align-items: center;
-  }
-  .hero-bg {
-    background-size: auto 120%; /* height-based sizing for short viewports */
-    background-position: right center;
-  }
-  .hero-overlay {
-    background: linear-gradient(
-      100deg,
-      rgba(8,11,16,0.90) 0%,
-      rgba(8,11,16,0.65) 40%,
-      rgba(8,11,16,0.20) 70%,
-      rgba(8,11,16,0.00) 90%
-    );
-  }
-  .hero-blink {
-    width: 10%;
-    top: 20%;
-    right: 14%;
-  }
-  .hero-title {
-    font-size: clamp(2rem, 5vw, 3rem);
+    background-position: 50% center;
   }
 }
 

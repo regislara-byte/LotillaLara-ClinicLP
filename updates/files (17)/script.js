@@ -75,21 +75,14 @@ const heroSection = document.querySelector('.hero');
 const heroContent = document.querySelector('.hero-content');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ── SHARED TRANSFORM STATE — ML-003 + ML-004 compose here ── */
-let _parallaxY  = 0;  // set by ML-004
-let _tiltTransform = ''; // set by ML-003
-
-function applyHeroBgTransform() {
-  heroBg.style.transform = `translateY(${_parallaxY}px) ${_tiltTransform}`;
-}
-
-/* ML-004 · Scroll Parallax — translateY only, never touches X anchor */
+/* ML-004 · Scroll Parallax — translates hero-bg on scroll for depth */
 if (heroBg && !reducedMotion) {
+  let bobBase = 0; // track CSS animation offset separately via scroll only
   window.addEventListener('scroll', () => {
     const y = window.scrollY;
     if (y < window.innerHeight) {
-      _parallaxY = y * 0.12;
-      applyHeroBgTransform();
+      /* Parallax shift — gentle 0.15 factor, no bob interference */
+      heroBg.style.backgroundPositionY = `calc(center + ${y * 0.15}px)`;
       heroContent.style.opacity = Math.max(0.4, 1 - (y / (window.innerHeight * 0.85)));
     }
   }, { passive: true });
@@ -98,33 +91,37 @@ if (heroBg && !reducedMotion) {
 /* ML-003 · Hover Tilt — desktop pointer follow, max ±3deg */
 if (heroSection && heroBg && !reducedMotion && window.matchMedia('(hover: hover)').matches) {
   let tiltActive = false;
+  let rafId = null;
   let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
 
   heroSection.addEventListener('mousemove', (e) => {
     const rect = heroSection.getBoundingClientRect();
     const cx = rect.left + rect.width  / 2;
     const cy = rect.top  + rect.height / 2;
-    targetX = ((e.clientX - cx) / (rect.width  / 2)) * 3;
-    targetY = ((e.clientY - cy) / (rect.height / 2)) * 1.5;
-    if (!tiltActive) { tiltActive = true; animateTilt(); }
+    /* Normalise to -1 → +1 */
+    targetX = ((e.clientX - cx) / (rect.width  / 2)) * 3;  /* max 3deg */
+    targetY = ((e.clientY - cy) / (rect.height / 2)) * 1.5; /* max 1.5deg */
+    if (!tiltActive) {
+      tiltActive = true;
+      animateTilt();
+    }
   }, { passive: true });
 
   heroSection.addEventListener('mouseleave', () => {
-    targetX = 0; targetY = 0;
+    targetX = 0;
+    targetY = 0;
   }, { passive: true });
 
   function animateTilt() {
+    /* Lerp for smooth easing */
     currentX += (targetX - currentX) * 0.06;
     currentY += (targetY - currentY) * 0.06;
-    const settling = Math.abs(targetX - currentX) > 0.01 || Math.abs(targetY - currentY) > 0.01;
-    _tiltTransform = settling
-      ? `rotate3d(${-currentY * 0.1}, ${currentX * 0.1}, 0, ${Math.sqrt(currentX**2 + currentY**2) * 0.4}deg)`
-      : '';
-    applyHeroBgTransform();
-    if (settling) {
-      requestAnimationFrame(animateTilt);
+    heroBg.style.transform = `rotate3d(${-currentY * 0.1}, ${currentX * 0.1}, 0, ${Math.sqrt(currentX**2 + currentY**2) * 0.4}deg)`;
+    if (Math.abs(targetX - currentX) > 0.01 || Math.abs(targetY - currentY) > 0.01) {
+      rafId = requestAnimationFrame(animateTilt);
     } else {
       tiltActive = false;
+      heroBg.style.transform = '';
     }
   }
 }
