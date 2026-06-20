@@ -309,3 +309,238 @@ console.log('%c Optical Clinic · Dr. Elsie L. Lara · script.js loaded', 'color
 
 // Google Apps Script preparation (future implementation)
 // Replace mailto with fetch to GAS endpoint when ready
+
+/* ================================================================
+   IMPLEMENTATION_008 — CURATED FRAME GALLERY MODAL
+   Premium carousel lightbox for frame collection discovery.
+   Touch/swipe · Keyboard nav · Focus trap · Accessible
+================================================================ */
+
+(function () {
+  'use strict';
+
+  /* ── Collection data ── */
+  const COLLECTIONS = {
+    rayban: {
+      title: 'Ray-Ban Collection',
+      folder: 'assets/images/curatedFrame/Ray-Ban_Collection/',
+      prefix: 'rbframe',
+      count: 10,
+      ext: 'jpeg',
+    },
+    designer: {
+      title: 'Designer Collection',
+      folder: 'assets/images/curatedFrame/designercollection/',
+      prefix: 'dcframe',
+      count: 10,
+      ext: 'jpeg',
+    },
+    look: {
+      title: 'Look Is Everything',
+      folder: 'assets/images/curatedFrame/looksiseverything/',
+      prefix: 'lookframe',
+      count: 10,
+      ext: 'jpeg',
+    },
+    pediatric: {
+      title: 'Pediatric Collection',
+      folder: 'assets/images/curatedFrame/pediatriccollection/',
+      prefix: 'pediaframe',
+      count: 10,
+      ext: 'jpeg',
+    },
+    sports: {
+      title: 'Sports & Active',
+      folder: 'assets/images/curatedFrame/sports&active/',
+      prefix: 'sportsframe',
+      count: 10,
+      ext: 'jpeg',
+    },
+  };
+
+  /* ── DOM references ── */
+  const modal          = document.getElementById('frameModal');
+  const backdrop       = document.getElementById('frameModalBackdrop');
+  const closeBtn       = document.getElementById('frameModalClose');
+  const modalTitle     = document.getElementById('frameModalTitle');
+  const track          = document.getElementById('frameCarouselTrack');
+  const prevBtn        = document.getElementById('frameCarouselPrev');
+  const nextBtn        = document.getElementById('frameCarouselNext');
+  const dotsContainer  = document.getElementById('frameCarouselDots');
+  const counter        = document.getElementById('frameCarouselCounter');
+
+  if (!modal) return; // guard
+
+  /* ── State ── */
+  let currentIndex  = 0;
+  let totalSlides   = 0;
+  let dots          = [];
+  let lastFocused   = null; // element to return focus to on close
+  let touchStartX   = 0;
+  let touchStartY   = 0;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Build slides for a collection ── */
+  function buildSlides(key) {
+    const col = COLLECTIONS[key];
+    if (!col) return;
+
+    track.innerHTML = '';
+    dotsContainer.innerHTML = '';
+    dots = [];
+    totalSlides = col.count;
+    currentIndex = 0;
+
+    modalTitle.textContent = col.title;
+
+    for (let i = 1; i <= col.count; i++) {
+      /* Slide */
+      const slide = document.createElement('div');
+      slide.className = 'frame-carousel-slide';
+      slide.setAttribute('role', 'img');
+      slide.setAttribute('aria-label', `${col.title} — frame ${i} of ${col.count}`);
+
+      const img = document.createElement('img');
+      img.src = `${col.folder}${col.prefix}${i}.${col.ext}`;
+      img.alt = `${col.title} — frame ${i}`;
+      img.loading = i === 1 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+
+      slide.appendChild(img);
+      track.appendChild(slide);
+
+      /* Dot */
+      const dot = document.createElement('button');
+      dot.className = 'frame-carousel-dot' + (i === 1 ? ' is-active' : '');
+      dot.setAttribute('aria-label', `Go to frame ${i}`);
+      dot.dataset.index = i - 1;
+      dot.addEventListener('click', () => goTo(parseInt(dot.dataset.index)));
+      dotsContainer.appendChild(dot);
+      dots.push(dot);
+    }
+
+    updateUI();
+  }
+
+  /* ── Navigation ── */
+  function goTo(index) {
+    if (index < 0) index = totalSlides - 1;
+    if (index >= totalSlides) index = 0;
+    currentIndex = index;
+
+    if (reducedMotion) {
+      /* Instant switch — no transform animation */
+      track.style.transition = 'none';
+    } else {
+      track.style.transition = '';
+    }
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+    updateUI();
+  }
+
+  function next() { goTo(currentIndex + 1); }
+  function prev() { goTo(currentIndex - 1); }
+
+  function updateUI() {
+    /* counter */
+    counter.textContent = `${currentIndex + 1} / ${totalSlides}`;
+    /* dots */
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('is-active', i === currentIndex);
+    });
+    /* arrow aria */
+    prevBtn.setAttribute('aria-label', `Previous frame (${currentIndex === 0 ? totalSlides : currentIndex} of ${totalSlides})`);
+    nextBtn.setAttribute('aria-label', `Next frame (${currentIndex === totalSlides - 1 ? 1 : currentIndex + 2} of ${totalSlides})`);
+  }
+
+  /* ── Open / Close ── */
+  function openModal(key) {
+    lastFocused = document.activeElement;
+    buildSlides(key);
+    modal.setAttribute('aria-hidden', 'false');
+    modal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    /* Focus close button after transition */
+    setTimeout(() => closeBtn.focus(), 60);
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    /* Return focus to triggering card */
+    if (lastFocused) {
+      setTimeout(() => lastFocused.focus(), 60);
+    }
+  }
+
+  /* ── Focus trap ── */
+  function trapFocus(e) {
+    if (!modal.classList.contains('is-open')) return;
+    const focusable = modal.querySelectorAll(
+      'button, [href], input, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last  = focusable[focusable.length - 1];
+
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+  }
+
+  /* ── Keyboard ── */
+  document.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('is-open')) return;
+    if (e.key === 'Escape')       closeModal();
+    if (e.key === 'ArrowRight')   next();
+    if (e.key === 'ArrowLeft')    prev();
+    trapFocus(e);
+  });
+
+  /* ── Touch / Swipe ── */
+  track.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  track.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    /* Only register horizontal swipes (>40px) that aren't scroll gestures */
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) next();
+      else prev();
+    }
+  }, { passive: true });
+
+  /* ── Event bindings ── */
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+  closeBtn.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', closeModal);
+
+  /* Frame card clicks */
+  document.querySelectorAll('.frame-card[data-collection]').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.collection));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openModal(card.dataset.collection);
+      }
+    });
+  });
+
+  console.log('%c IMPLEMENTATION_008 · Frame Gallery Modal loaded', 'color: #B8924A; font-size: 11px;');
+
+})();
