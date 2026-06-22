@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=010" />
+  <link rel="stylesheet" href="style.css?v=013" />
 </head>
 <body>
 
@@ -277,7 +277,10 @@
        FRAMES GALLERY
   ============================================================ -->
   <section class="section frames" id="frames" aria-labelledby="frames-title">
-    <div class="container">
+    <!-- E001: Floating atmosphere layer — injected by JS, aria-hidden -->
+    <div class="frames-atmosphere" id="framesAtmosphere" aria-hidden="true"></div>
+
+    <div class="container frames-container">
       <span class="section-label">Curated Frames</span>
       <h2 class="section-title" id="frames-title">
         Find the frame<br />
@@ -353,7 +356,7 @@
         <a href="#booking" class="btn btn-primary">Book a Frame Consultation</a>
         <p class="frames-note">Walk-in frame browsing welcome · Sunday–Friday</p>
       </div>
-    </div>
+    </div><!-- /.frames-container -->
   </section>
 
     <!-- ============================================================
@@ -759,9 +762,14 @@
 
       <!-- Header -->
       <div class="frame-modal-header">
-        <div>
+        <div class="frame-modal-header-text">
           <p class="frame-modal-label" aria-hidden="true">Curated Frames</p>
           <h3 class="frame-modal-title" id="frameModalTitle">Collection</h3>
+          <!-- E004: Collection identity tag — populated by JS -->
+          <div class="frame-collection-identity" id="frameCollectionIdentity" aria-hidden="true">
+            <span class="frame-identity-tag" id="frameIdentityTag"></span>
+            <span class="frame-identity-desc" id="frameIdentityDesc"></span>
+          </div>
         </div>
         <button class="frame-modal-close glass-btn"
                 id="frameModalClose"

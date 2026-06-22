@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>LL-OPTICALV2 · Clinic Operations Dashboard</title>
+<style>
+/* ================================================================
+   IMPLEMENTATION_009 — Admin Dashboard
+   Self-contained. Not linked from the public LP.
+   Password gate → GAS data fetch → live metrics display.
+================================================================ */
+
+:root {
+  --bg:       #080b10;
+  --surface:  #0f1520;
+  --border:   rgba(255,255,255,0.08);
+  --gold:     #B8924A;
+  --green:    #88BBA0;
+  --blue:     #8BA8C8;
+  --red:      #C87870;
+  --white:    #f4f3ef;
+  --muted:    rgba(255,255,255,0.42);
+  --mono:     'SF Mono', 'Fira Code', 'Consolas', monospace;
+  --sans:     -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── PASSWORD GATE ── */
+#gate {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  z-index: 100;
+}
+
+.gate-logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.gate-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.gate-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 280px;
+}
+
+.gate-field label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.gate-field input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--white);
+  font-size: 15px;
+  font-family: var(--mono);
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.gate-field input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.gate-btn {
+  width: 280px;
+  padding: 13px;
+  background: var(--gold);
+  color: #0a0a0a;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.gate-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.gate-error {
+  color: var(--red);
+  font-size: 12px;
+  font-family: var(--mono);
+  text-align: center;
+  min-height: 18px;
+}
+
+/* ── DASHBOARD LAYOUT ── */
+#dashboard {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+}
+
+#dashboard.visible { display: flex; }
+
+/* Top bar */
+.dash-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dash-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dash-brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+
+.dash-brand-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+}
+
+.dash-brand-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+.dash-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dash-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.dash-refresh-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.dash-refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+.dash-logout-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.dash-logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* Main grid */
+.dash-main {
+  flex: 1;
+  padding: 28px 24px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Section headers */
+.dash-section-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dash-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* KPI cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s;
+}
+.kpi-card:hover { border-color: rgba(255,255,255,0.16); }
+
+.kpi-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--white);
+}
+
+.kpi-value.accent-gold  { color: var(--gold);  }
+.kpi-value.accent-green { color: var(--green); }
+.kpi-value.accent-blue  { color: var(--blue);  }
+.kpi-value.accent-red   { color: var(--red);   }
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Inquiry table */
+.dash-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.dash-table thead {
+  background: rgba(255,255,255,0.03);
+}
+
+.dash-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.dash-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+  color: rgba(255,255,255,0.82);
+}
+
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table tr:hover td { background: rgba(255,255,255,0.025); }
+
+/* Status badges */
+.status-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.status-new        { color: var(--gold);  border-color: var(--gold);  background: rgba(184,146,74,0.08);  }
+.status-contacted  { color: var(--blue);  border-color: var(--blue);  background: rgba(139,168,200,0.08); }
+.status-scheduled  { color: var(--green); border-color: var(--green); background: rgba(136,187,160,0.08); }
+.status-completed  { color: rgba(255,255,255,0.5); border-color: var(--border); }
+.status-cancelled  { color: var(--red);   border-color: var(--red);   background: rgba(200,120,112,0.08); }
+
+/* Service tags */
+.service-tag {
+  font-size: 11px;
+  color: var(--blue);
+}
+
+/* Follow-up queue */
+.followup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.followup-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.followup-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.followup-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.followup-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* Summary box */
+.summary-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin-bottom: 32px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.summary-item:last-child { border-bottom: none; }
+
+.summary-item-label { color: var(--muted); }
+.summary-item-value { font-weight: 600; font-family: var(--mono); }
+
+/* Loading / empty states */
+.dash-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  gap: 10px;
+}
+
+.dash-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.dash-empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Report generate button */
+.report-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.report-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--white);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.report-btn:hover { border-color: var(--gold); background: rgba(184,146,74,0.06); }
+.report-btn:active { transform: scale(0.98); }
+
+.report-btn-icon { font-size: 16px; }
+
+/* Character tag */
+.eylotl-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  padding: 4px 12px;
+  border: 1px solid rgba(184,146,74,0.3);
+  border-radius: 100px;
+  background: rgba(184,146,74,0.06);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dash-main { padding: 20px 16px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-table { font-size: 12px; }
+  .dash-table th, .dash-table td { padding: 10px 12px; }
+  .dash-topbar { flex-wrap: wrap; gap: 10px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .dash-table-wrap { overflow-x: auto; }
+  .dash-table { min-width: 580px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── PASSWORD GATE ── -->
+<div id="gate" role="main" aria-labelledby="gate-title">
+  <p class="gate-logo">LL-OPTICALV2 · ADMIN</p>
+  <h1 class="gate-title" id="gate-title">Operations Dashboard</h1>
+  <div class="gate-field">
+    <label for="gatePassword">Access Code</label>
+    <input type="password" id="gatePassword"
+           placeholder="Enter access code"
+           autocomplete="current-password"
+           onkeydown="if(event.key==='Enter') gateSubmit()" />
+  </div>
+  <button class="gate-btn" onclick="gateSubmit()">Enter Dashboard</button>
+  <p class="gate-error" id="gateError" role="alert" aria-live="polite"></p>
+  <p style="font-size:11px;color:rgba(255,255,255,0.2);font-family:var(--mono);margin-top:8px;">
+    This page is not linked from the public website.
+  </p>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboard" role="main" aria-label="Clinic Operations Dashboard">
+
+  <!-- Top bar -->
+  <div class="dash-topbar">
+    <div class="dash-brand">
+      <div class="dash-brand-dot"></div>
+      <span class="dash-brand-name">LL-OPTICALV2</span>
+      <span class="dash-brand-sub">· Clinic Operations</span>
+    </div>
+    <div class="dash-topbar-right">
+      <span class="dash-date" id="dashDate"></span>
+      <span class="eylotl-tag">EYLOTL™ Reporting</span>
+      <button class="dash-refresh-btn" onclick="loadDashboard()">↺ Refresh</button>
+      <button class="dash-logout-btn" onclick="gateLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="dash-main">
+
+    <!-- Today's KPIs -->
+    <p class="dash-section-title">Today's Activity</p>
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="dash-loading"><div class="dash-spinner"></div> Loading…</div>
+    </div>
+
+    <!-- System Health (E009-020) -->
+    <p class="dash-section-title">System Health</p>
+    <div class="kpi-grid" id="healthGrid">
+      <div class="dash-loading"><div class="dash-spinner"></div> Loading…</div>
+    </div>
+
+    <!-- Report actions -->
+    <p class="dash-section-title">Reports</p>
+    <div class="report-actions">
+      <button class="report-btn" onclick="triggerDailySummary()">
+        <span class="report-btn-icon">📋</span> Generate Daily Summary
+      </button>
+      <button class="report-btn" onclick="triggerWeeklySummary()">
+        <span class="report-btn-icon">📊</span> Generate Weekly Report
+      </button>
+      <button class="report-btn" onclick="openGoogleSheet()">
+        <span class="report-btn-icon">📗</span> Open Google Sheet
+      </button>
+      <button class="report-btn" onclick="triggerExportPDF()">
+        <span class="report-btn-icon">📄</span> Export PDF Report
+      </button>
+    </div>
+
+    <!-- Recent inquiries -->
+    <p class="dash-section-title">Recent Inquiries</p>
+    <div class="dash-table-wrap">
+      <table class="dash-table" id="inquiriesTable" aria-label="Recent patient inquiries">
+        <thead>
+          <tr>
+            <th>InquiryID</th>
+            <th>Time</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Service</th>
+            <th>Source</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="inquiriesBody">
+          <tr><td colspan="7" class="dash-empty">Loading inquiries…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Follow-up queue -->
+    <p class="dash-section-title">Follow-Up Queue</p>
+    <div class="followup-list" id="followupList">
+      <div class="dash-loading"><div class="dash-spinner"></div> Loading…</div>
+    </div>
+
+    <!-- Recent Reports -->
+    <p class="dash-section-title">Recent Reports</p>
+    <div class="dash-table-wrap">
+      <table class="dash-table" aria-label="Generated reports">
+        <thead>
+          <tr><th>ReportID</th><th>Date</th><th>Type</th><th>Inquiries</th><th>Doc Link</th></tr>
+        </thead>
+        <tbody id="reportsBody">
+          <tr><td colspan="5" class="dash-empty">Loading reports…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Audit Log -->
+    <p class="dash-section-title">Audit Log</p>
+    <div class="dash-table-wrap">
+      <table class="dash-table" aria-label="System audit log">
+        <thead>
+          <tr><th>Time</th><th>Action</th><th>User</th><th>Details</th></tr>
+        </thead>
+        <tbody id="auditBody">
+          <tr><td colspan="4" class="dash-empty">Loading audit log…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /.dash-main -->
+</div><!-- /#dashboard -->
+
+<script>
+/* ================================================================
+   IMPLEMENTATION_009 — Admin Dashboard Script (009-B)
+   Synced to deployed Sheet: Inquiries / Appointments / Reports /
+   Analytics / FollowUps / AuditLog / Settings
+================================================================ */
+'use strict';
+
+/* ── CONFIG — paste your deployed /exec URL here ── */
+const GAS_ENDPOINT = 'YOUR_GAS_ENDPOINT_URL_HERE';
+const SHEET_URL    = 'YOUR_GOOGLE_SHEET_URL_HERE';
+const ACCESS_CODE  = 'lloptical2024'; /* change before deploying */
+const SESSION_KEY  = 'llop_admin_session';
+
+/* ── Gate ── */
+function gateSubmit() {
+  const input = document.getElementById('gatePassword');
+  const err   = document.getElementById('gateError');
+  if (input.value === ACCESS_CODE) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').classList.add('visible');
+    initDashboard();
+  } else {
+    err.textContent = 'Incorrect access code.';
+    input.value = '';
+    input.focus();
+    setTimeout(() => { err.textContent = ''; }, 3000);
+  }
+}
+
+function gateLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(SESSION_KEY)) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').classList.add('visible');
+    initDashboard();
+  }
+});
+
+function initDashboard() {
+  document.getElementById('dashDate').textContent =
+    new Date().toLocaleDateString('en-PH', { weekday:'short', year:'numeric', month:'long', day:'numeric' });
+  loadDashboard();
+}
+
+function loadDashboard() {
+  const gasReady = GAS_ENDPOINT && GAS_ENDPOINT !== 'YOUR_GAS_ENDPOINT_URL_HERE';
+  if (!gasReady) { renderPlaceholderData(); return; }
+
+  fetch(`${GAS_ENDPOINT}?action=getDashboard`)
+    .then(r => r.json())
+    .then(data => {
+      renderKPIs(data.kpis || {});
+      renderHealth(data.health || {});
+      renderInquiries(data.inquiries || []);
+      renderFollowups(data.followups || []);
+      renderReports(data.recentReports || []);
+      renderAuditLog(data.auditEntries || []);
+    })
+    .catch(() => renderPlaceholderData());
+}
+
+/* ── KPI Cards ── */
+function renderKPIs(k) {
+  const grid = document.getElementById('kpiGrid');
+  const cards = [
+    { label:'Today\'s Inquiries',  value: k.totalInquiries   ?? '—', accent:'accent-gold'  },
+    { label:'Confirmed',           value: k.confirmed         ?? '—', accent:'accent-green' },
+    { label:'Pending Follow-Ups',  value: k.pendingFollowups  ?? '—', accent:'accent-gold'  },
+    { label:'Cancelled',           value: k.cancelled         ?? '—', accent:'accent-red'   },
+    { label:'Frame Consults',      value: k.frameConsults     ?? '—', accent:''             },
+    { label:'Pediatric',           value: k.pediatric         ?? '—', accent:''             },
+    { label:'Sports & Active',     value: k.sports            ?? '—', accent:''             },
+    { label:'Weekly Total',        value: k.weeklyInquiries   ?? '—', accent:'accent-blue'  },
+  ];
+  grid.innerHTML = cards.map(c => `
+    <div class="kpi-card">
+      <span class="kpi-label">${c.label}</span>
+      <span class="kpi-value ${c.accent}">${c.value}</span>
+    </div>
+  `).join('');
+}
+
+/* ── System Health (E009-020) ── */
+function renderHealth(h) {
+  const el = document.getElementById('healthGrid');
+  if (!el) return;
+  const rate  = h.successRate ?? 100;
+  const color = rate >= 95 ? 'var(--green)' : rate >= 80 ? 'var(--gold)' : 'var(--red)';
+  el.innerHTML = `
+    <div class="kpi-card">
+      <span class="kpi-label">Success Rate</span>
+      <span class="kpi-value" style="color:${color}">${rate}%</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Reports Generated</span>
+      <span class="kpi-value">${h.reportsGenerated ?? '—'}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Chat Alerts Sent</span>
+      <span class="kpi-value">${h.chatAlertsSent ?? '—'}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Audit Events</span>
+      <span class="kpi-value">${h.totalAuditEvents ?? '—'}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Errors</span>
+      <span class="kpi-value ${(h.errorCount||0) > 0 ? 'accent-red' : 'accent-green'}">${h.errorCount ?? 0}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Last Report</span>
+      <span class="kpi-value" style="font-size:0.9rem">${formatTime(h.lastReportAt) || '—'}</span>
+      <span class="kpi-sub">Version ${h.version || '009'}</span>
+    </div>
+  `;
+}
+
+/* ── Inquiries Table — synced to real columns ── */
+function renderInquiries(rows) {
+  const tbody = document.getElementById('inquiriesBody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="dash-empty">No inquiries yet today.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${sanitize(r.inquiryId)}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${formatTime(r.timestamp)}</td>
+      <td><strong>${sanitize(r.name)}</strong></td>
+      <td style="font-family:var(--mono);font-size:12px">${sanitize(r.phone)}</td>
+      <td><span class="service-tag">${sanitize(r.service)}</span></td>
+      <td style="font-family:var(--mono);font-size:11px">${sanitize(r.source)}</td>
+      <td><span class="status-badge status-${(r.status||'new').toLowerCase()}">${sanitize(r.status||'New')}</span></td>
+    </tr>
+  `).join('');
+}
+
+/* ── Follow-Up Queue — synced to real columns ── */
+function renderFollowups(items) {
+  const list = document.getElementById('followupList');
+  if (!items.length) {
+    list.innerHTML = '<div class="dash-empty">No pending follow-ups.</div>';
+    return;
+  }
+  list.innerHTML = items.map(f => `
+    <div class="followup-item">
+      <div>
+        <div class="followup-name">${sanitize(f.name)}</div>
+        <div class="followup-meta">${sanitize(f.notes||f.reason||'—')} · ${sanitize(f.phone)} · ${sanitize(f.inquiryId)}</div>
+      </div>
+      <div>
+        <div class="followup-date">${sanitize(f.dueDate)}</div>
+        <div style="font-size:10px;color:var(--muted);text-align:right;margin-top:3px">${sanitize(f.assignedTo||'Unassigned')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Reports Tab ── */
+function renderReports(rows) {
+  const el = document.getElementById('reportsBody');
+  if (!el) return;
+  if (!rows.length) {
+    el.innerHTML = '<tr><td colspan="5" class="dash-empty">No reports generated yet.</td></tr>';
+    return;
+  }
+  el.innerHTML = rows.map(r => `
+    <tr>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${sanitize(r.reportId)}</td>
+      <td>${sanitize(r.date)}</td>
+      <td><span class="status-badge status-scheduled">${sanitize(r.type)}</span></td>
+      <td>${sanitize(r.inquiries)}</td>
+      <td>${r.notes ? `<a href="${sanitize(r.notes)}" target="_blank" style="color:var(--gold);font-size:11px">Open Doc →</a>` : '—'}</td>
+    </tr>
+  `).join('');
+}
+
+/* ── Audit Log ── */
+function renderAuditLog(entries) {
+  const el = document.getElementById('auditBody');
+  if (!el) return;
+  if (!entries.length) {
+    el.innerHTML = '<tr><td colspan="5" class="dash-empty">No audit events yet.</td></tr>';
+    return;
+  }
+  el.innerHTML = entries.map(e => `
+    <tr>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${formatTime(e.timestamp)}</td>
+      <td style="font-family:var(--mono);font-size:11px">${sanitize(e.action)}</td>
+      <td style="font-size:11px;color:var(--muted)">${sanitize(e.user)}</td>
+      <td style="font-size:12px">${sanitize(e.details)}</td>
+    </tr>
+  `).join('');
+}
+
+/* ── Placeholder (GAS not configured) ── */
+function renderPlaceholderData() {
+  renderKPIs({});
+  renderHealth({});
+  renderInquiries([]);
+  renderFollowups([]);
+  renderReports([]);
+  renderAuditLog([]);
+  document.getElementById('kpiGrid').insertAdjacentHTML('afterbegin', `
+    <div style="grid-column:1/-1;padding:16px;background:rgba(184,146,74,0.08);
+                border:1px solid rgba(184,146,74,0.25);border-radius:8px;
+                font-family:var(--mono);font-size:11px;color:var(--gold);
+                letter-spacing:0.06em;line-height:1.9;">
+      ⚙ GAS_ENDPOINT not configured.<br>
+      Deploy gas_e009.gs → paste /exec URL into admin.html and script.js.<br>
+      Run initializeSheets() then installTriggers() in GAS editor.
+    </div>
+  `);
+}
+
+/* ── Report actions ── */
+function triggerGasAction(action, label) {
+  const gasReady = GAS_ENDPOINT && GAS_ENDPOINT !== 'YOUR_GAS_ENDPOINT_URL_HERE';
+  if (!gasReady) { alert('Configure GAS_ENDPOINT first.'); return; }
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<div class="dash-spinner" style="width:14px;height:14px;margin:0 auto"></div>';
+  btn.disabled = true;
+  fetch(`${GAS_ENDPOINT}?action=${action}`)
+    .then(r => r.json())
+    .then(d => {
+      const msg = d.message || d.url || (d.success ? 'Done.' : 'Check GAS logs.');
+      alert(`${label}: ${msg}`);
+      if (d.success) loadDashboard(); // refresh after successful action
+    })
+    .catch(() => alert('Error contacting GAS. Check endpoint and deployment.'))
+    .finally(() => { btn.innerHTML = orig; btn.disabled = false; });
+}
+
+function triggerDailySummary()  { triggerGasAction('generateDailySummary',  'Daily Summary');  }
+function triggerWeeklySummary() { triggerGasAction('generateWeeklySummary', 'Weekly Report');  }
+function triggerExportPDF()     { triggerGasAction('exportDailyReportPDF',  'PDF Export');     }
+function openGoogleSheet() {
+  if (SHEET_URL && SHEET_URL !== 'YOUR_GOOGLE_SHEET_URL_HERE') {
+    window.open(SHEET_URL, '_blank');
+  } else {
+    alert('Set SHEET_URL in admin.html to your Google Sheet URL.');
+  }
+}
+
+/* ── Utilities ── */
+function formatTime(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' }); }
+  catch { return String(iso); }
+}
+
+function sanitize(str) {
+  if (str === null || str === undefined) return '—';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Gate ── */
+function gateSubmit() {
+  const input = document.getElementById('gatePassword');
+  const err   = document.getElementById('gateError');
+  if (input.value === ACCESS_CODE) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('gate').style.display      = 'none';
+    document.getElementById('dashboard').classList.add('visible');
+    initDashboard();
+  } else {
+    err.textContent = 'Incorrect access code.';
+    input.value = '';
+    input.focus();
+    setTimeout(() => { err.textContent = ''; }, 3000);
+  }
+}
+
+function gateLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+/* Auto-restore session within same browser tab */
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(SESSION_KEY)) {
+    document.getElementById('gate').style.display      = 'none';
+    document.getElementById('dashboard').classList.add('visible');
+    initDashboard();
+  }
+});
+
+/* ── Dashboard init ── */
+function initDashboard() {
+  /* Show today's date in topbar */
+  const now = new Date();
+  document.getElementById('dashDate').textContent =
+    now.toLocaleDateString('en-PH', { weekday:'short', year:'numeric', month:'long', day:'numeric' });
+  loadDashboard();
+}
+
+function loadDashboard() {
+  const gasReady = GAS_ENDPOINT && GAS_ENDPOINT !== 'YOUR_GAS_ENDPOINT_URL_HERE';
+
+  if (!gasReady) {
+    renderPlaceholderData();
+    return;
+  }
+
+  fetch(`${GAS_ENDPOINT}?action=getDashboard`)
+    .then(r => r.json())
+    .then(data => {
+      renderKPIs(data.kpis || {});
+      renderInquiries(data.inquiries || []);
+      renderFollowups(data.followups || []);
+      renderSummary(data.summary || {});
+    })
+    .catch(() => renderPlaceholderData());
+}
+
+/* ── Render KPI cards ── */
+function renderKPIs(kpis) {
+  const grid = document.getElementById('kpiGrid');
+  const cards = [
+    { label:'Total Inquiries',    value: kpis.totalInquiries    ?? '—', accent:'accent-gold' },
+    { label:'Appointments Req.',  value: kpis.appointments      ?? '—', accent:'accent-blue' },
+    { label:'Confirmed',          value: kpis.confirmed         ?? '—', accent:'accent-green' },
+    { label:'Pending Follow-ups', value: kpis.pendingFollowups  ?? '—', accent:'accent-gold' },
+    { label:'Frame Consults',     value: kpis.frameConsults     ?? '—', accent:'' },
+    { label:'Pediatric Inquiries',value: kpis.pediatric         ?? '—', accent:'' },
+    { label:'Sports/Active',      value: kpis.sports            ?? '—', accent:'' },
+    { label:'Cancelled',          value: kpis.cancelled         ?? '—', accent:'accent-red' },
+  ];
+
+  grid.innerHTML = cards.map(c => `
+    <div class="kpi-card">
+      <span class="kpi-label">${c.label}</span>
+      <span class="kpi-value ${c.accent}">${c.value}</span>
+    </div>
+  `).join('');
+}
+
+/* ── Render inquiries table ── */
+function renderInquiries(rows) {
+  const tbody = document.getElementById('inquiriesBody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="dash-empty">No inquiries yet today.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${formatTime(r.timestamp)}</td>
+      <td><strong>${sanitize(r.name)}</strong></td>
+      <td style="font-family:var(--mono);font-size:12px">${sanitize(r.phone)}</td>
+      <td><span class="service-tag">${sanitize(r.reason)}</span></td>
+      <td style="font-family:var(--mono);font-size:12px">${sanitize(r.preferredDate)}</td>
+      <td><span class="status-badge status-${(r.status||'new').toLowerCase()}">${sanitize(r.status||'New')}</span></td>
+    </tr>
+  `).join('');
+}
+
+/* ── Render follow-up queue ── */
+function renderFollowups(items) {
+  const list = document.getElementById('followupList');
+  if (!items.length) {
+    list.innerHTML = '<div class="dash-empty">No pending follow-ups.</div>';
+    return;
+  }
+  list.innerHTML = items.map(f => `
+    <div class="followup-item">
+      <div>
+        <div class="followup-name">${sanitize(f.name)}</div>
+        <div class="followup-meta">${sanitize(f.reason)} · ${sanitize(f.phone)}</div>
+      </div>
+      <div class="followup-date">${sanitize(f.followUpDate)}</div>
+    </div>
+  `).join('');
+}
+
+/* ── Render daily summary ── */
+function renderSummary(s) {
+  const grid = document.getElementById('summaryGrid');
+  const items = [
+    ['Total Inquiries',         s.totalInquiries    ?? 0],
+    ['Appointments Requested',  s.appointments      ?? 0],
+    ['Confirmed',               s.confirmed         ?? 0],
+    ['Walk-ins Recorded',       s.walkins           ?? 0],
+    ['Frame Consultations',     s.frameConsults     ?? 0],
+    ['Pediatric Inquiries',     s.pediatric         ?? 0],
+    ['Sports Vision',           s.sports            ?? 0],
+    ['Pending Follow-ups',      s.pendingFollowups  ?? 0],
+    ['Completed Follow-ups',    s.completedFollowups?? 0],
+    ['Cancelled Requests',      s.cancelled         ?? 0],
+  ];
+
+  grid.innerHTML = `<div style="grid-column:1/-1">` +
+    items.map(([label, val]) => `
+      <div class="summary-item">
+        <span class="summary-item-label">${label}</span>
+        <span class="summary-item-value">${val}</span>
+      </div>
+    `).join('') + `</div>`;
+}
+
+/* ── Placeholder data (shown when GAS not configured) ── */
+function renderPlaceholderData() {
+  renderKPIs({ totalInquiries:0, appointments:0, confirmed:0, pendingFollowups:0 });
+  renderInquiries([]);
+  renderFollowups([]);
+  renderSummary({});
+
+  /* Show setup notice */
+  const grid = document.getElementById('kpiGrid');
+  grid.insertAdjacentHTML('afterbegin', `
+    <div style="grid-column:1/-1;padding:16px;background:rgba(184,146,74,0.08);
+                border:1px solid rgba(184,146,74,0.25);border-radius:8px;
+                font-family:var(--mono);font-size:11px;color:var(--gold);
+                letter-spacing:0.06em;line-height:1.7;margin-bottom:4px;">
+      ⚙ GAS_ENDPOINT not configured.<br>
+      Deploy gas_e009.gs → paste /exec URL into admin.html and script.js.<br>
+      See gas_e009.js for full setup instructions.
+    </div>
+  `);
+}
+
+/* ── Report triggers (call GAS actions) ── */
+function triggerGasAction(action, label) {
+  const gasReady = GAS_ENDPOINT && GAS_ENDPOINT !== 'YOUR_GAS_ENDPOINT_URL_HERE';
+  if (!gasReady) { alert('Configure GAS_ENDPOINT first.'); return; }
+  const btn = event.currentTarget;
+  const original = btn.innerHTML;
+  btn.innerHTML = '<div class="dash-spinner" style="width:14px;height:14px;margin:0 auto"></div>';
+  btn.disabled = true;
+  fetch(`${GAS_ENDPOINT}?action=${action}`)
+    .then(r => r.json())
+    .then(d => { alert(`${label}: ${d.message || 'Done.'}`); })
+    .catch(() => { alert('Error contacting GAS. Check endpoint.'); })
+    .finally(() => { btn.innerHTML = original; btn.disabled = false; });
+}
+
+function triggerDailySummary() {
+  triggerGasAction('generateDailySummary', 'Daily Summary');
+}
+function triggerWeeklySummary() {
+  triggerGasAction('generateWeeklySummary', 'Weekly Report');
+}
+function triggerExportPDF() {
+  triggerGasAction('exportDailyReportPDF', 'PDF Export');
+}
+function openGoogleSheet() {
+  if (SHEET_URL && SHEET_URL !== 'YOUR_GOOGLE_SHEET_URL_HERE') {
+    window.open(SHEET_URL, '_blank');
+  } else {
+    alert('Set SHEET_URL in admin.html after creating your Google Sheet.');
+  }
+}
+
+/* ── Utilities ── */
+function formatTime(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+  } catch { return iso; }
+}
+
+function sanitize(str) {
+  if (!str) return '—';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

@@ -1960,3 +1960,300 @@ ul[role="list"] { list-style: none; }
   .frame-carousel-arrow--next { right: var(--sp-2); }
   .frame-carousel-counter { display: none; }
 }
+
+
+/* ================================================================
+   IMPLEMENTATION_008B — CURATED FRAMES EXPERIENCE ENHANCEMENT
+   E001 Atmosphere · E002 Glass+ · E003 Infinite · E004 Identity
+   E005 Reveal · E006 Performance guard
+================================================================ */
+
+/* ── E001: FLOATING ATMOSPHERE LAYER ── */
+
+.frames-atmosphere {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* The section needs relative positioning for the atmosphere to anchor */
+.section.frames {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ensure content sits above atmosphere */
+.frames-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Individual floating frame image */
+.atm-frame {
+  position: absolute;
+  border-radius: 8px;
+  object-fit: cover;
+  will-change: transform;
+  /* opacity set inline per-floater for varied depths */
+}
+
+/* Six CSS keyframe drift animations — varied paths for organic feel */
+@keyframes atm-drift-a {
+  0%   { transform: translate(0px, 0px) rotate(-2deg); }
+  33%  { transform: translate(12px, -18px) rotate(0deg); }
+  66%  { transform: translate(-8px, -28px) rotate(2deg); }
+  100% { transform: translate(0px, 0px) rotate(-2deg); }
+}
+@keyframes atm-drift-b {
+  0%   { transform: translate(0px, 0px) rotate(3deg); }
+  40%  { transform: translate(-14px, -22px) rotate(1deg); }
+  75%  { transform: translate(10px, -12px) rotate(-1deg); }
+  100% { transform: translate(0px, 0px) rotate(3deg); }
+}
+@keyframes atm-drift-c {
+  0%   { transform: translate(0px, 0px) rotate(-1deg); }
+  50%  { transform: translate(18px, -16px) rotate(2deg); }
+  100% { transform: translate(0px, 0px) rotate(-1deg); }
+}
+@keyframes atm-drift-d {
+  0%   { transform: translate(0px, 0px) rotate(2deg); }
+  45%  { transform: translate(-10px, -24px) rotate(-2deg); }
+  100% { transform: translate(0px, 0px) rotate(2deg); }
+}
+@keyframes atm-drift-e {
+  0%   { transform: translate(0px, 0px) rotate(-3deg); }
+  35%  { transform: translate(16px, -10px) rotate(-1deg); }
+  70%  { transform: translate(-6px, -20px) rotate(1deg); }
+  100% { transform: translate(0px, 0px) rotate(-3deg); }
+}
+@keyframes atm-drift-f {
+  0%   { transform: translate(0px, 0px) rotate(1deg); }
+  60%  { transform: translate(-12px, -14px) rotate(3deg); }
+  100% { transform: translate(0px, 0px) rotate(1deg); }
+}
+
+/* ── E002: ENHANCED GLASS CONTROLS ── */
+
+/* Upgrade close button — larger, stronger specular */
+.frame-modal-close.glass-btn {
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow:
+    0 2px 12px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.12);
+}
+.frame-modal-close.glass-btn:hover {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.32);
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.32),
+    inset 0 1px 0 rgba(255,255,255,0.28),
+    inset 0 -1px 0 rgba(0,0,0,0.12);
+}
+
+/* Arrow buttons — stronger glass, refined sizing */
+.frame-carousel-arrow.glass-btn {
+  width: 50px;
+  height: 50px;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.20),
+    inset 0 -1px 0 rgba(0,0,0,0.10);
+}
+.frame-carousel-arrow.glass-btn:hover {
+  background: rgba(255,255,255,0.17);
+  border-color: rgba(255,255,255,0.30);
+  transform: translateY(-1px) scale(1.04);
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.36),
+    inset 0 1px 0 rgba(255,255,255,0.28);
+}
+.frame-carousel-arrow.glass-btn:active {
+  transform: scale(0.96);
+}
+
+/* ── E003: INFINITE CAROUSEL — clone support ── */
+/* Clone slides get same styling as real slides */
+.frame-carousel-slide--clone {
+  flex: 0 0 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 340px;
+  max-height: 62vh;
+  pointer-events: none; /* clones are visual only */
+}
+.frame-carousel-slide--clone img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-height: 62vh;
+  display: block;
+}
+
+/* Disable transition during clone jump (class toggled by JS) */
+.frame-carousel-track.no-transition {
+  transition: none !important;
+}
+
+/* ── E004: COLLECTION IDENTITY ── */
+
+.frame-modal-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.frame-collection-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: identity-appear 0.5s 0.25s var(--ease) forwards;
+}
+
+@keyframes identity-appear {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.frame-identity-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid;
+  /* color set via inline CSS variable --id-color from JS */
+  color: var(--id-color, var(--gold));
+  border-color: var(--id-color, var(--gold));
+  background: rgba(255,255,255,0.04);
+  white-space: nowrap;
+}
+
+.frame-identity-desc {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.38);
+  white-space: nowrap;
+}
+
+/* Reset animation when modal re-opens (JS adds/removes class) */
+.frame-collection-identity.identity-reset {
+  animation: none;
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* ── E005: PREMIUM REVEAL MOMENT ── */
+
+/* Panel entrance — deeper, more cinematic */
+.frame-modal-panel {
+  transform: translateY(32px) scale(0.96);
+  transition:
+    transform 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.32s var(--ease);
+  opacity: 0;
+}
+.frame-modal.is-open .frame-modal-panel {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* First slide reveal — scale + fade in when modal opens */
+@keyframes slide-reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Applied by JS on first slide when modal opens */
+.frame-carousel-slide.is-revealing img {
+  animation: slide-reveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Backdrop — extra depth */
+.frame-modal-backdrop {
+  background: rgba(6, 8, 12, 0.90);
+  backdrop-filter: blur(18px) saturate(0.7);
+  -webkit-backdrop-filter: blur(18px) saturate(0.7);
+}
+
+/* ── E006: PERFORMANCE / REDUCED MOTION GUARD ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .atm-frame {
+    animation: none !important;
+    opacity: 0.04 !important; /* still visible, just static */
+  }
+  .frame-collection-identity {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .frame-carousel-slide.is-revealing img {
+    animation: none !important;
+  }
+  .frame-modal-panel {
+    transition: opacity 0.2s var(--ease) !important;
+    transform: none !important;
+  }
+  .frame-modal.is-open .frame-modal-panel {
+    transform: none !important;
+  }
+}
+
+/* Mobile sheet adjustments carried over from 008 — atmosphere hidden on small screens */
+@media (max-width: 480px) {
+  .frames-atmosphere {
+    display: none; /* avoid perf cost on low-end phones */
+  }
+  .frame-carousel-arrow.glass-btn {
+    width: 38px;
+    height: 38px;
+  }
+  .frame-collection-identity {
+    flex-wrap: wrap;
+  }
+}
+
+
+/* ================================================================
+   IMPLEMENTATION_009 — Operations Layer
+   Booking form submission state only.
+   Admin dashboard styles live in admin.html (self-contained).
+================================================================ */
+
+/* Submission loading state */
+#bookingForm .btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* GAS status indicator — shown only in dev when endpoint not set */
+.gas-notice {
+  display: none; /* hidden in production */
+  font-size: 11px;
+  color: #B8924A;
+  text-align: center;
+  padding: 6px 0 0;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
