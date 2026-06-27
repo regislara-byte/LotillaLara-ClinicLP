@@ -56,9 +56,6 @@
   --radius:       6px;
   --radius-lg:    14px;
   --nav-h:        72px;
-
-  /* Motion */
-  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* ── RESET ── */
@@ -447,8 +444,7 @@ ul[role="list"] { list-style: none; }
   z-index: 2;
 }
 .frame-card:hover {
-  /* Transform owned by IMP010 [data-collection]:hover — higher specificity.
-     Keep gold inset glow here as base for non-collection cards. */
+  transform: translateY(-6px) scale(1.012);
   box-shadow: 0 20px 60px rgba(0,0,0,0.14), 0 4px 16px rgba(184,146,74,0.10);
 }
 .frame-card:hover::after {
@@ -1050,53 +1046,6 @@ ul[role="list"] { list-style: none; }
   color: var(--text-secondary);
   font-family: var(--font-mono);
   letter-spacing: 0.05em;
-}
-
-/* ── JOURNEY INTRO VISUAL ── */
-.journey-intro-visual {
-  position: relative;
-  width: 100%;
-  max-height: 340px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  margin-bottom: var(--sp-8);
-}
-
-.journey-bg-image {
-  width: 100%;
-  max-height: 340px;
-  object-fit: cover;
-  object-position: center 30%;
-  display: block;
-  filter: brightness(0.55) saturate(0.8);
-}
-
-.journey-editorial-quote {
-  position: absolute;
-  bottom: var(--sp-5);
-  left: var(--sp-6);
-  font-family: var(--font-display);
-  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
-  font-style: italic;
-  font-weight: 300;
-  color: rgba(255,255,255,0.82);
-  letter-spacing: 0.01em;
-  line-height: 1.3;
-  pointer-events: none;
-}
-
-@media (max-width: 768px) {
-  .journey-intro-visual { max-height: 220px; }
-  .journey-bg-image     { max-height: 220px; }
-  .journey-editorial-quote {
-    bottom: var(--sp-3);
-    left: var(--sp-3);
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .journey-intro-visual { display: none; }
 }
 
 /* ── PATIENT JOURNEY ── */
@@ -1798,7 +1747,6 @@ ul[role="list"] { list-style: none; }
 }
 
 /* Panel */
-/* Panel — structural props (position, size, glass, border-radius) */
 .frame-modal-panel {
   position: relative;
   z-index: 1;
@@ -1813,7 +1761,9 @@ ul[role="list"] { list-style: none; }
   box-shadow:
     0 40px 80px rgba(0,0,0,0.55),
     0 0 0 1px rgba(255,255,255,0.04) inset;
-  /* Motion + accent border defined in 008B + 010 blocks below */
+  /* slide-in on open */
+  transform: translateY(24px) scale(0.98);
+  transition: transform 0.36s var(--ease);
 }
 
 .frame-modal.is-open .frame-modal-panel {
@@ -2209,15 +2159,12 @@ ul[role="list"] { list-style: none; }
 /* ── E005: PREMIUM REVEAL MOMENT ── */
 
 /* Panel entrance — deeper, more cinematic */
-/* Panel — cinematic entrance + full transition (008B + 010 consolidated) */
 .frame-modal-panel {
   transform: translateY(32px) scale(0.96);
-  opacity: 0;
-  border-top: 2px solid var(--modal-accent, rgba(255,255,255,0.07));
   transition:
     transform 0.42s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.32s var(--ease),
-    border-top-color 0.40s var(--ease);
+    opacity 0.32s var(--ease);
+  opacity: 0;
 }
 .frame-modal.is-open .frame-modal-panel {
   transform: translateY(0) scale(1);
@@ -2425,8 +2372,14 @@ ul[role="list"] { list-style: none; }
 }
 
 /* ── E010-005: MODAL PANEL ACCENT BORDER ── */
-/* Consolidated into 008B .frame-modal-panel block above.
-   border-top + border-top-color transition live there. */
+
+.frame-modal-panel {
+  border-top: 2px solid var(--modal-accent, rgba(255,255,255,0.07));
+  transition:
+    transform 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.32s var(--ease),
+    border-top-color 0.40s var(--ease);
+}
 
 /* ── E010: REDUCED MOTION GUARD ── */
 
