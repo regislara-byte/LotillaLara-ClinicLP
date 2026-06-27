@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=013" />
+  <link rel="stylesheet" href="style.css?v=010" />
 </head>
 <body>
 
@@ -274,11 +274,13 @@
   </section>
 
   <!-- ============================================================
-       FRAMES GALLERY
+       FRAMES GALLERY — IMPLEMENTATION_010
   ============================================================ -->
   <section class="section frames" id="frames" aria-labelledby="frames-title">
     <!-- E001: Floating atmosphere layer — injected by JS, aria-hidden -->
     <div class="frames-atmosphere" id="framesAtmosphere" aria-hidden="true"></div>
+    <!-- IMP010: Soft collection spotlight — tracks hover color -->
+    <div class="frames-spotlight" id="framesSpotlight" aria-hidden="true"></div>
 
     <div class="container frames-container">
       <span class="section-label">Curated Frames</span>
@@ -293,61 +295,76 @@
       <div class="frames-grid">
         <div class="frame-card frame-card--hero"
              data-collection="rayban"
+             data-accent="#B8924A"
              role="button" tabindex="0"
              aria-label="Open Ray-Ban Collection gallery">
           <img src="assets/images/gallery/LL16.png" alt="Premium Ray-Ban eyeglass frames — tortoiseshell round and rectangular styles" />
+          <div class="frame-card-reflection" aria-hidden="true"></div>
           <div class="frame-card-info">
             <span class="frame-style">Ray-Ban Collection</span>
             <span class="frame-mood">Timeless · For every face shape</span>
           </div>
+          <div class="frame-accent-bar" aria-hidden="true"></div>
           <span class="frame-explore-badge" aria-hidden="true">Explore →</span>
         </div>
 
         <div class="frame-card"
              data-collection="designer"
+             data-accent="#8BA8C8"
              role="button" tabindex="0"
              aria-label="Open Designer Collection gallery">
           <img src="assets/images/gallery/LL17.png" alt="Designer Collection">
+          <div class="frame-card-reflection" aria-hidden="true"></div>
           <div class="frame-card-info">
             <span class="frame-style">Designer Collection</span>
             <span class="frame-mood">Modern • Everyday elegance</span>
           </div>
+          <div class="frame-accent-bar" aria-hidden="true"></div>
           <span class="frame-explore-badge" aria-hidden="true">Explore →</span>
         </div>
 
         <div class="frame-card"
              data-collection="look"
+             data-accent="#C8A0B4"
              role="button" tabindex="0"
              aria-label="Open Look Is Everything gallery">
           <img src="assets/images/gallery/LL18.png" alt="Look Is Everything">
+          <div class="frame-card-reflection" aria-hidden="true"></div>
           <div class="frame-card-info">
             <span class="frame-style">Look Is Everything</span>
             <span class="frame-mood">Confidence • Personal style</span>
           </div>
+          <div class="frame-accent-bar" aria-hidden="true"></div>
           <span class="frame-explore-badge" aria-hidden="true">Explore →</span>
         </div>
 
         <div class="frame-card"
              data-collection="pediatric"
+             data-accent="#88BBA0"
              role="button" tabindex="0"
              aria-label="Open Pediatric Collection gallery">
           <img src="assets/images/gallery/LL19.png" alt="Pediatric Collection">
+          <div class="frame-card-reflection" aria-hidden="true"></div>
           <div class="frame-card-info">
             <span class="frame-style">Pediatric Collection</span>
             <span class="frame-mood">Flexible • Built for childhood</span>
           </div>
+          <div class="frame-accent-bar" aria-hidden="true"></div>
           <span class="frame-explore-badge" aria-hidden="true">Explore →</span>
         </div>
 
         <div class="frame-card frame-card-wide"
              data-collection="sports"
+             data-accent="#A0B4D0"
              role="button" tabindex="0"
              aria-label="Open Sports & Active gallery">
           <img src="assets/images/gallery/LL20.png" alt="Sports & Active">
+          <div class="frame-card-reflection" aria-hidden="true"></div>
           <div class="frame-card-info">
             <span class="frame-style">Sports & Active</span>
             <span class="frame-mood">Durable • For the life you live</span>
           </div>
+          <div class="frame-accent-bar" aria-hidden="true"></div>
           <span class="frame-explore-badge" aria-hidden="true">Explore →</span>
         </div>
       </div>
@@ -359,7 +376,7 @@
     </div><!-- /.frames-container -->
   </section>
 
-    <!-- ============================================================
+  <!-- ============================================================
        PATIENT JOURNEY TIMELINE
   ============================================================ -->
   <section class="section journey dark-section" id="journey" aria-labelledby="journey-title">
@@ -742,7 +759,8 @@
   <!-- Scroll progress -->
   <div id="scroll-progress" aria-hidden="true"></div>
 
-  <script src="script.js?v=008"></script>
+  <script src="script.js?v=010"></script>
+
   <!-- ============================================================
        IMPLEMENTATION_008 — CURATED FRAME GALLERY MODAL
        Premium carousel lightbox. Activated by frame card click.

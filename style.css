@@ -2257,3 +2257,163 @@ ul[role="list"] { list-style: none; }
   font-family: var(--font-mono);
   letter-spacing: 0.06em;
 }
+
+/* ================================================================
+   IMPLEMENTATION_010 — CURATED FRAMES INTERACTIVE SHOWCASE
+   E010-001 3D Tilt · E010-002 Reflection Shimmer · E010-003 Accent Bar
+   E010-004 Section Spotlight · E010-005 Modal Accent Wire
+================================================================ */
+
+/* ── E010-001: 3D MICRO-TILT ON HOVER ── */
+
+.frame-card[data-collection] {
+  transform-style: preserve-3d;
+  transition:
+    transform 0.22s var(--ease),
+    box-shadow 0.28s var(--ease);
+  will-change: transform;
+}
+
+.frame-card[data-collection]:hover {
+  transform:
+    perspective(900px)
+    rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg))
+    translateY(-3px)
+    scale(1.012);
+  box-shadow:
+    0 20px 48px rgba(0,0,0,0.44),
+    0 0 0 1px rgba(255,255,255,0.08);
+}
+
+.frame-card[data-collection]:not(:hover) {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+}
+
+/* ── E010-002: GLASS REFLECTION SHIMMER ── */
+
+.frame-card-reflection {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255,255,255,0.05) 28%,
+    rgba(255,255,255,0.11) 50%,
+    rgba(255,255,255,0.05) 72%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-position: -100% 0;
+  transition:
+    opacity 0.22s var(--ease),
+    background-position 0s;
+}
+
+.frame-card[data-collection]:hover .frame-card-reflection {
+  opacity: 1;
+  background-position: 200% 0;
+  transition:
+    opacity 0.18s var(--ease),
+    background-position 0.58s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── E010-003: COLLECTION ACCENT BAR ── */
+
+.frame-accent-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--card-accent, rgba(255,255,255,0.18));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 4;
+  border-radius: 0 0 4px 4px;
+}
+
+.frame-card[data-collection]:hover .frame-accent-bar {
+  transform: scaleX(1);
+}
+
+/* ── E010-004: SECTION SPOTLIGHT ── */
+
+.frames-spotlight {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    var(--spotlight-color, rgba(184,146,74,0.09)) 0%,
+    transparent 68%
+  );
+  transform: translate(-50%, -50%);
+  transition:
+    opacity 0.48s var(--ease),
+    left 0.58s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    top 0.58s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    background 0.48s var(--ease);
+  will-change: left, top, opacity;
+}
+
+.frames-spotlight.is-visible {
+  opacity: 1;
+}
+
+/* ── E010-005: MODAL PANEL ACCENT BORDER ── */
+
+.frame-modal-panel {
+  border-top: 2px solid var(--modal-accent, rgba(255,255,255,0.07));
+  transition:
+    transform 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.32s var(--ease),
+    border-top-color 0.40s var(--ease);
+}
+
+/* ── E010: REDUCED MOTION GUARD ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .frame-card[data-collection]:hover {
+    transform: translateY(-2px) scale(1.008) !important;
+  }
+  .frame-card-reflection {
+    display: none;
+  }
+  .frame-accent-bar {
+    transition: transform 0.1s linear;
+  }
+  .frames-spotlight {
+    transition: opacity 0.2s var(--ease);
+  }
+  .frame-modal-panel {
+    transition:
+      opacity 0.2s var(--ease),
+      border-top-color 0.2s var(--ease) !important;
+    transform: none !important;
+  }
+}
+
+/* ── E010: MOBILE GUARD ── */
+
+@media (max-width: 768px) {
+  .frame-card[data-collection]:hover {
+    transform: translateY(-2px) scale(1.008);
+  }
+  .frame-card-reflection {
+    display: none;
+  }
+  .frames-spotlight {
+    display: none;
+  }
+}

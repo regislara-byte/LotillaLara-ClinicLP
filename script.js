@@ -784,3 +784,131 @@ console.log('%c Optical Clinic · Dr. Elsie L. Lara · script.js loaded', 'color
 console.log('%c IMPLEMENTATION_009-B · Operations Layer active', 'color: #88BBA0; font-size: 11px;');
 console.log('%c GAS: Inquiries/Appointments/Reports/Analytics/FollowUps/AuditLog/Settings', 'color: #B8924A; font-size: 10px;');
 console.log('%c Admin dashboard → /admin/admin.html (access-code protected)', 'color: #8BA8C8; font-size: 10px;');
+
+
+/* ================================================================
+   IMPLEMENTATION_010 — CURATED FRAMES INTERACTIVE SHOWCASE
+   E010-001 3D Tilt · E010-002 Accent Bar Wire · E010-003 Spotlight
+   E010-004 Modal Accent Wire
+   Vanilla JS only · Surgical patch · No touch interference
+================================================================ */
+
+(function () {
+  'use strict';
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isTouchDevice = window.matchMedia('(hover: none)').matches;
+
+  /* ── DOM ── */
+  const spotlight     = document.getElementById('framesSpotlight');
+  const framesSection = document.getElementById('frames');
+  const frameModal    = document.getElementById('frameModal');
+  const modalPanel    = document.querySelector('.frame-modal-panel');
+
+  /* ── Collection accent colors — mirrors COLLECTIONS in 008B ── */
+  const ACCENT_COLORS = {
+    rayban:    '#B8924A',
+    designer:  '#8BA8C8',
+    look:      '#C8A0B4',
+    pediatric: '#88BBA0',
+    sports:    '#A0B4D0',
+  };
+
+  /* ── Utility: hex → rgba ── */
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  /* ── E010-001 + E010-002 + E010-003: Per-card effects ── */
+
+  document.querySelectorAll('.frame-card[data-collection]').forEach(card => {
+    const accent = card.dataset.accent || 'rgba(255,255,255,0.25)';
+
+    /* Wire accent bar color */
+    card.style.setProperty('--card-accent', accent);
+
+    /* ── E010-001: 3D Tilt — desktop pointer only ── */
+    if (!isTouchDevice && !reducedMotion) {
+      card.addEventListener('mousemove', (e) => {
+        const rect  = card.getBoundingClientRect();
+        const cx    = rect.left + rect.width  / 2;
+        const cy    = rect.top  + rect.height / 2;
+        const nx    = (e.clientX - cx) / (rect.width  / 2);
+        const ny    = (e.clientY - cy) / (rect.height / 2);
+        /* Max ±4deg — luxury feel, not a toy */
+        const tiltX = Math.max(-4, Math.min(4, -ny * 4));
+        const tiltY = Math.max(-4, Math.min(4,  nx * 4));
+        card.style.setProperty('--tilt-x', `${tiltX.toFixed(2)}deg`);
+        card.style.setProperty('--tilt-y', `${tiltY.toFixed(2)}deg`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--tilt-x', '0deg');
+        card.style.setProperty('--tilt-y', '0deg');
+      });
+    }
+
+    /* ── E010-003: Spotlight tracking ── */
+    if (!isTouchDevice && spotlight && framesSection) {
+      card.addEventListener('mouseenter', () => {
+        const sectionRect = framesSection.getBoundingClientRect();
+        const cardRect    = card.getBoundingClientRect();
+
+        /* Card center relative to section, accounting for scroll */
+        const relLeft = cardRect.left + cardRect.width  / 2 - sectionRect.left;
+        const relTop  = cardRect.top  + cardRect.height / 2 - sectionRect.top
+                        + framesSection.scrollTop;
+
+        const spotColor = hexToRgba(accent, 0.09);
+        spotlight.style.setProperty('--spotlight-color', spotColor);
+        spotlight.style.left = `${relLeft}px`;
+        spotlight.style.top  = `${relTop}px`;
+        spotlight.classList.add('is-visible');
+      });
+
+      card.addEventListener('mouseleave', () => {
+        spotlight.classList.remove('is-visible');
+      });
+    }
+
+    /* ── E010-004: Stamp active collection on modal for observer ── */
+    card.addEventListener('click', () => {
+      if (frameModal) frameModal.dataset.activeCollection = card.dataset.collection;
+    });
+    card.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && frameModal) {
+        frameModal.dataset.activeCollection = card.dataset.collection;
+      }
+    });
+  });
+
+  /* ── E010-004: Modal panel accent border — MutationObserver ── */
+
+  if (frameModal && modalPanel) {
+    const modalObserver = new MutationObserver(() => {
+      if (frameModal.classList.contains('is-open')) {
+        const key = frameModal.dataset.activeCollection;
+        if (key && ACCENT_COLORS[key]) {
+          modalPanel.style.setProperty(
+            '--modal-accent',
+            hexToRgba(ACCENT_COLORS[key], 0.60)
+          );
+        }
+      } else {
+        /* Reset on close */
+        modalPanel.style.setProperty('--modal-accent', 'rgba(255,255,255,0.07)');
+      }
+    });
+
+    modalObserver.observe(frameModal, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+
+  console.log('%c IMPLEMENTATION_010 · Curated Frames Interactive Showcase loaded', 'color: #88BBA0; font-size: 11px;');
+
+})();
