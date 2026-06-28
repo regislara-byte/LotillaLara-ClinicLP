@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>LL-OPTICALV2 · Clinic Operations Dashboard</title>
+<style>
+/* ================================================================
+   IMPLEMENTATION_011 — Admin Dashboard v011
+   Upgrades over 009-B:
+   + Tab navigation (Overview / Inquiries / Notifications / Analytics / Reports / Log)
+   + Notifications panel (live from Notifications tab)
+   + Analytics panel (metric charts via SVG sparklines)
+   + Confirm/Cancel appointment actions inline
+   + Status filter on Inquiries table
+   + Auto-refresh every 5 minutes
+   + Email + patient email health KPIs
+   + Follow-up overdue highlighting
+   + Full GAS 009-C endpoint wiring
+================================================================ */
+
+:root {
+  --bg:        #080b10;
+  --surface:   #0f1520;
+  --surface2:  #141c28;
+  --border:    rgba(255,255,255,0.08);
+  --border2:   rgba(255,255,255,0.04);
+  --gold:      #B8924A;
+  --green:     #88BBA0;
+  --blue:      #8BA8C8;
+  --rose:      #C8A0B4;
+  --red:       #C87870;
+  --white:     #f4f3ef;
+  --muted:     rgba(255,255,255,0.38);
+  --muted2:    rgba(255,255,255,0.18);
+  --mono:      'SF Mono','Fira Code','Consolas',monospace;
+  --sans:      -apple-system,'Helvetica Neue',Arial,sans-serif;
+  --ease:      cubic-bezier(0.25,0.46,0.45,0.94);
+  --nav-h:     56px;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── PASSWORD GATE ── */
+#gate {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 200;
+}
+.gate-logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.gate-title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+.gate-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 280px;
+}
+.gate-field label {
+  font-size: 11px;
+  font-family: var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.gate-field input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  color: var(--white);
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s var(--ease);
+}
+.gate-field input:focus { border-color: var(--gold); }
+.gate-btn {
+  background: var(--gold);
+  color: #08090a;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 32px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  width: 280px;
+  transition: opacity 0.2s var(--ease);
+}
+.gate-btn:hover { opacity: 0.85; }
+.gate-error {
+  font-size: 12px;
+  color: var(--red);
+  font-family: var(--mono);
+  min-height: 16px;
+}
+
+/* ── DASHBOARD SHELL ── */
+#dashboard {
+  display: none;
+  min-height: 100vh;
+  flex-direction: column;
+}
+#dashboard.visible { display: flex; }
+
+/* ── TOP BAR ── */
+.dash-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--nav-h);
+  background: rgba(8,11,16,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  gap: 16px;
+}
+.dash-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dash-brand-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse-dot 3s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; } 50% { opacity:0.4; }
+}
+.dash-brand-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--white);
+}
+.dash-brand-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+.dash-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dash-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+.eylotl-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  background: rgba(184,146,74,0.1);
+  border: 1px solid rgba(184,146,74,0.2);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+.dash-topbar-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--white);
+  font-size: 11px;
+  font-family: var(--mono);
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.dash-topbar-btn:hover { border-color: rgba(255,255,255,0.22); background: var(--surface2); }
+.dash-topbar-btn.danger:hover { border-color: var(--red); color: var(--red); }
+.auto-refresh-status {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+}
+
+/* ── TAB NAV ── */
+.dash-tabnav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  background: var(--surface);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.dash-tabnav::-webkit-scrollbar { display: none; }
+.dash-tab {
+  font-size: 12px;
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  padding: 14px 18px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  transition: color 0.18s var(--ease), border-color 0.18s var(--ease);
+  white-space: nowrap;
+  position: relative;
+}
+.dash-tab:hover { color: var(--white); }
+.dash-tab.active {
+  color: var(--white);
+  border-bottom-color: var(--gold);
+}
+.dash-tab .tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  background: var(--gold);
+  color: #08090a;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 0 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ── MAIN CONTENT ── */
+.dash-main {
+  padding: 28px 24px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+}
+
+/* ── TAB PANELS ── */
+.dash-panel { display: none; }
+.dash-panel.active { display: block; }
+
+/* ── SECTION TITLES ── */
+.dash-section-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dash-section-title:first-child { margin-top: 0; }
+.dash-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── KPI GRID ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s var(--ease);
+}
+.kpi-card:hover { border-color: rgba(255,255,255,0.14); }
+.kpi-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.kpi-value {
+  font-size: 1.9rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.kpi-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+}
+.accent-gold  { color: var(--gold);  }
+.accent-green { color: var(--green); }
+.accent-blue  { color: var(--blue);  }
+.accent-red   { color: var(--red);   }
+.accent-rose  { color: var(--rose);  }
+
+/* ── TABLES ── */
+.dash-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.dash-table thead { background: var(--surface); }
+.dash-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.dash-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border2);
+  vertical-align: middle;
+}
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table tbody tr:hover td { background: rgba(255,255,255,0.018); }
+.dash-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  font-family: var(--mono);
+  padding: 32px 16px !important;
+}
+
+/* ── STATUS BADGES ── */
+.status-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.status-new          { color: var(--blue);  border-color: rgba(139,168,200,0.3); background: rgba(139,168,200,0.08); }
+.status-contacted    { color: var(--gold);  border-color: rgba(184,146,74,0.3);  background: rgba(184,146,74,0.08);  }
+.status-scheduled    { color: var(--green); border-color: rgba(136,187,160,0.3); background: rgba(136,187,160,0.08); }
+.status-completed    { color: var(--green); border-color: rgba(136,187,160,0.3); background: rgba(136,187,160,0.08); }
+.status-cancelled    { color: var(--red);   border-color: rgba(200,120,112,0.3); background: rgba(200,120,112,0.08); }
+.status-overdue      { color: var(--red);   border-color: rgba(200,120,112,0.3); background: rgba(200,120,112,0.12); }
+.status-pending      { color: var(--gold);  border-color: rgba(184,146,74,0.3);  background: rgba(184,146,74,0.08);  }
+.status-reminded     { color: var(--rose);  border-color: rgba(200,160,180,0.3); background: rgba(200,160,180,0.08); }
+.status-archived     { color: var(--muted); border-color: var(--border);          background: transparent;             }
+.status-sent         { color: var(--green); border-color: rgba(136,187,160,0.3); background: rgba(136,187,160,0.08); }
+.status-daily        { color: var(--blue);  border-color: rgba(139,168,200,0.3); background: rgba(139,168,200,0.08); }
+.status-weekly       { color: var(--rose);  border-color: rgba(200,160,180,0.3); background: rgba(200,160,180,0.08); }
+
+.service-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--white);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+/* ── FOLLOW-UP LIST ── */
+.followup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.followup-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: border-color 0.2s var(--ease);
+}
+.followup-item:hover { border-color: rgba(255,255,255,0.14); }
+.followup-item.overdue { border-color: rgba(200,120,112,0.3); background: rgba(200,120,112,0.04); }
+.followup-name { font-weight: 500; font-size: 14px; }
+.followup-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.followup-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold);
+  white-space: nowrap;
+  text-align: right;
+}
+.followup-date.overdue { color: var(--red); }
+
+/* ── REPORT ACTIONS ── */
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.report-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--white);
+  font-size: 12px;
+  font-family: var(--mono);
+  padding: 10px 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+  white-space: nowrap;
+}
+.report-btn:hover { border-color: rgba(255,255,255,0.22); background: var(--surface2); }
+.report-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.report-btn-icon { font-size: 14px; }
+
+/* ── NOTIFICATIONS PANEL ── */
+.notification-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border2);
+}
+.notification-item:last-child { border-bottom: none; }
+.notification-type-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.notification-body { flex: 1; }
+.notification-type {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.notification-recipient {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 2px 0;
+}
+.notification-channel {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+}
+.notification-time {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+  white-space: nowrap;
+}
+.notification-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px 16px;
+  margin-bottom: 8px;
+}
+
+/* ── ANALYTICS SPARKLINES ── */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.analytics-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 16px;
+}
+.analytics-card-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.analytics-card-value {
+  font-size: 1.6rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.analytics-card-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+  margin-top: -8px;
+  margin-bottom: 12px;
+}
+.sparkline-wrap {
+  height: 40px;
+  overflow: hidden;
+}
+.sparkline-wrap svg {
+  width: 100%;
+  height: 40px;
+}
+
+/* ── SETUP NOTICE ── */
+.setup-notice {
+  grid-column: 1 / -1;
+  padding: 16px 18px;
+  background: rgba(184,146,74,0.06);
+  border: 1px solid rgba(184,146,74,0.22);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  line-height: 2;
+}
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  align-items: center;
+}
+.filter-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+}
+.filter-btn:hover,
+.filter-btn.active { color: var(--white); border-color: rgba(255,255,255,0.22); background: var(--surface2); }
+.filter-btn.active { border-color: var(--gold); color: var(--gold); }
+
+/* ── INLINE ACTIONS ── */
+.action-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+  white-space: nowrap;
+}
+.action-btn:hover { color: var(--white); border-color: rgba(255,255,255,0.22); }
+.action-btn.confirm { border-color: rgba(136,187,160,0.4); color: var(--green); }
+.action-btn.cancel  { border-color: rgba(200,120,112,0.4); color: var(--red); }
+.action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── LOADING ── */
+.dash-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-family: var(--mono);
+  padding: 24px 0;
+}
+.dash-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-family: var(--mono);
+  color: var(--white);
+  z-index: 300;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  pointer-events: none;
+  max-width: 320px;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+#toast.success { border-color: rgba(136,187,160,0.4); color: var(--green); }
+#toast.error   { border-color: rgba(200,120,112,0.4); color: var(--red); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .dash-topbar        { padding: 0 16px; gap: 8px; }
+  .dash-main          { padding: 20px 16px; }
+  .dash-tabnav        { padding: 0 12px; }
+  .dash-tab           { padding: 12px 12px; font-size: 11px; }
+  .kpi-grid           { grid-template-columns: repeat(2, 1fr); }
+  .analytics-grid     { grid-template-columns: 1fr; }
+  .report-actions     { flex-direction: column; }
+  .report-btn         { width: 100%; justify-content: center; }
+  .dash-brand-sub     { display: none; }
+  .eylotl-tag         { display: none; }
+  .dash-date          { display: none; }
+  .auto-refresh-status{ display: none; }
+}
+@media (max-width: 480px) {
+  .kpi-grid           { grid-template-columns: 1fr 1fr; }
+  .dash-table         { font-size: 11px; min-width: 520px; }
+  .dash-table th,
+  .dash-table td      { padding: 10px 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── PASSWORD GATE ── -->
+<div id="gate" role="main" aria-labelledby="gate-title">
+  <p class="gate-logo">LL-OPTICALV2 · Admin</p>
+  <h1 class="gate-title" id="gate-title">Operations Dashboard</h1>
+  <div class="gate-field">
+    <label for="gatePassword">Access Code</label>
+    <input type="password" id="gatePassword"
+           placeholder="Enter access code"
+           autocomplete="current-password"
+           onkeydown="if(event.key==='Enter') gateSubmit()" />
+  </div>
+  <button class="gate-btn" onclick="gateSubmit()">Enter Dashboard</button>
+  <p class="gate-error" id="gateError" role="alert" aria-live="polite"></p>
+  <p style="font-size:10px;color:rgba(255,255,255,0.18);font-family:var(--mono);margin-top:4px;">
+    Not linked from the public website.
+  </p>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboard" role="main" aria-label="Clinic Operations Dashboard">
+
+  <!-- Top bar -->
+  <div class="dash-topbar">
+    <div class="dash-brand">
+      <div class="dash-brand-dot"></div>
+      <span class="dash-brand-name">LL-OPTICALV2</span>
+      <span class="dash-brand-sub">· Clinic Operations</span>
+    </div>
+    <div class="dash-topbar-right">
+      <span class="auto-refresh-status" id="refreshStatus">—</span>
+      <span class="dash-date" id="dashDate"></span>
+      <span class="eylotl-tag">EYLOTL™</span>
+      <button class="dash-topbar-btn" onclick="loadDashboard()">↺ Refresh</button>
+      <button class="dash-topbar-btn danger" onclick="gateLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Tab nav -->
+  <nav class="dash-tabnav" role="tablist" aria-label="Dashboard sections">
+    <button class="dash-tab active" role="tab" aria-selected="true"
+            aria-controls="panel-overview" onclick="switchTab('overview', this)">
+      Overview
+    </button>
+    <button class="dash-tab" role="tab" aria-selected="false"
+            aria-controls="panel-inquiries" onclick="switchTab('inquiries', this)">
+      Inquiries <span class="tab-badge" id="badge-inquiries" style="display:none">0</span>
+    </button>
+    <button class="dash-tab" role="tab" aria-selected="false"
+            aria-controls="panel-notifications" onclick="switchTab('notifications', this)">
+      Notifications <span class="tab-badge" id="badge-notifications" style="display:none">0</span>
+    </button>
+    <button class="dash-tab" role="tab" aria-selected="false"
+            aria-controls="panel-analytics" onclick="switchTab('analytics', this)">
+      Analytics
+    </button>
+    <button class="dash-tab" role="tab" aria-selected="false"
+            aria-controls="panel-reports" onclick="switchTab('reports', this)">
+      Reports
+    </button>
+    <button class="dash-tab" role="tab" aria-selected="false"
+            aria-controls="panel-log" onclick="switchTab('log', this)">
+      Audit Log
+    </button>
+  </nav>
+
+  <!-- Main content -->
+  <div class="dash-main">
+
+    <!-- ══ OVERVIEW ══ -->
+    <div class="dash-panel active" id="panel-overview" role="tabpanel">
+
+      <p class="dash-section-title">Today's Activity</p>
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="dash-loading"><div class="dash-spinner"></div> Loading…</div>
+      </div>
+
+      <p class="dash-section-title">System Health</p>
+      <div class="kpi-grid" id="healthGrid">
+        <div class="dash-loading"><div class="dash-spinner"></div> Loading…</div>
+      </div>
+
+      <p class="dash-section-title">Follow-Up Queue</p>
+      <div class="followup-list" id="followupList">
+        <div class="dash-loading"><div class="dash-spinner"></div> Loading…</div>
+      </div>
+
+      <p class="dash-section-title">Recent Activity</p>
+      <div class="notification-list" id="recentNotifications">
+        <div class="dash-loading"><div class="dash-spinner"></div> Loading…</div>
+      </div>
+
+    </div><!-- /overview -->
+
+    <!-- ══ INQUIRIES ══ -->
+    <div class="dash-panel" id="panel-inquiries" role="tabpanel">
+
+      <p class="dash-section-title">Patient Inquiries</p>
+      <div class="filter-bar" id="inquiryFilters">
+        <button class="filter-btn active" onclick="filterInquiries('all', this)">All</button>
+        <button class="filter-btn" onclick="filterInquiries('new', this)">New</button>
+        <button class="filter-btn" onclick="filterInquiries('contacted', this)">Contacted</button>
+        <button class="filter-btn" onclick="filterInquiries('scheduled', this)">Scheduled</button>
+        <button class="filter-btn" onclick="filterInquiries('completed', this)">Completed</button>
+        <button class="filter-btn" onclick="filterInquiries('cancelled', this)">Cancelled</button>
+      </div>
+
+      <div class="dash-table-wrap">
+        <table class="dash-table" aria-label="Patient inquiries">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Time</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Service</th>
+              <th>Preferred Date</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="inquiriesBody">
+            <tr><td colspan="9" class="dash-empty">Loading inquiries…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- /inquiries -->
+
+    <!-- ══ NOTIFICATIONS ══ -->
+    <div class="dash-panel" id="panel-notifications" role="tabpanel">
+
+      <p class="dash-section-title">Notification Engine Log</p>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterNotifications('all', this)">All</button>
+        <button class="filter-btn" onclick="filterNotifications('NEW_INQUIRY', this)">New Inquiry</button>
+        <button class="filter-btn" onclick="filterNotifications('APPOINTMENT_CONFIRMED', this)">Confirmed</button>
+        <button class="filter-btn" onclick="filterNotifications('APPOINTMENT_CANCELLED', this)">Cancelled</button>
+        <button class="filter-btn" onclick="filterNotifications('FOLLOWUP_REMINDER', this)">Follow-Up</button>
+      </div>
+
+      <div class="notification-list" id="notificationLog">
+        <div class="dash-loading"><div class="dash-spinner"></div> Loading…</div>
+      </div>
+    </div><!-- /notifications -->
+
+    <!-- ══ ANALYTICS ══ -->
+    <div class="dash-panel" id="panel-analytics" role="tabpanel">
+
+      <p class="dash-section-title">Metric Breakdown</p>
+      <div class="analytics-grid" id="analyticsGrid">
+        <div class="dash-loading"><div class="dash-spinner"></div> Loading…</div>
+      </div>
+
+      <p class="dash-section-title">Service Demand</p>
+      <div class="dash-table-wrap">
+        <table class="dash-table" aria-label="Service demand breakdown">
+          <thead>
+            <tr><th>Metric</th><th>Today</th><th>Total (30 days)</th></tr>
+          </thead>
+          <tbody id="analyticsBody">
+            <tr><td colspan="3" class="dash-empty">Loading analytics…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- /analytics -->
+
+    <!-- ══ REPORTS ══ -->
+    <div class="dash-panel" id="panel-reports" role="tabpanel">
+
+      <p class="dash-section-title">Generate Reports</p>
+      <div class="report-actions">
+        <button class="report-btn" onclick="triggerAction('generateDailySummary','Daily Summary',this)">
+          <span class="report-btn-icon">📋</span> Generate Daily Summary
+        </button>
+        <button class="report-btn" onclick="triggerAction('generateWeeklySummary','Weekly Report',this)">
+          <span class="report-btn-icon">📊</span> Generate Weekly Report
+        </button>
+        <button class="report-btn" onclick="triggerAction('exportDailyReportPDF','PDF Export',this)">
+          <span class="report-btn-icon">📄</span> Export PDF Report
+        </button>
+        <button class="report-btn" onclick="openGoogleSheet()">
+          <span class="report-btn-icon">📗</span> Open Google Sheet
+        </button>
+      </div>
+
+      <p class="dash-section-title">Report Archive</p>
+      <div class="dash-table-wrap">
+        <table class="dash-table" aria-label="Report archive">
+          <thead>
+            <tr>
+              <th>ReportID</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Inquiries</th>
+              <th>Appointments</th>
+              <th>Doc</th>
+            </tr>
+          </thead>
+          <tbody id="reportsBody">
+            <tr><td colspan="6" class="dash-empty">Loading reports…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- /reports -->
+
+    <!-- ══ AUDIT LOG ══ -->
+    <div class="dash-panel" id="panel-log" role="tabpanel">
+
+      <p class="dash-section-title">System Audit Log</p>
+      <div class="dash-table-wrap">
+        <table class="dash-table" aria-label="System audit log">
+          <thead>
+            <tr>
+              <th>LogID</th>
+              <th>Time</th>
+              <th>Action</th>
+              <th>User</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="auditBody">
+            <tr><td colspan="5" class="dash-empty">Loading audit log…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- /log -->
+
+  </div><!-- /.dash-main -->
+</div><!-- /#dashboard -->
+
+<!-- Toast -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ================================================================
+   IMPLEMENTATION_011 — Dashboard Script v011
+   Tabs: Overview · Inquiries · Notifications · Analytics · Reports · Audit Log
+   GAS 009-C endpoint wiring
+   Auto-refresh every 5 minutes
+================================================================ */
+'use strict';
+
+/* ── CONFIG — paste your deployed /exec URL ── */
+const GAS_ENDPOINT = 'YOUR_GAS_ENDPOINT_URL_HERE';
+const SHEET_URL    = 'YOUR_GOOGLE_SHEET_URL_HERE';
+const ACCESS_CODE  = 'lloptical2024';   /* change before deploying */
+const SESSION_KEY  = 'llop_admin_v011';
+
+/* ── State ── */
+let _allInquiries     = [];
+let _allNotifications = [];
+let _inquiryFilter    = 'all';
+let _notifFilter      = 'all';
+let _refreshTimer     = null;
+const GAS_READY       = () => GAS_ENDPOINT && GAS_ENDPOINT !== 'YOUR_GAS_ENDPOINT_URL_HERE';
+
+/* ================================================================
+   GATE
+================================================================ */
+function gateSubmit() {
+  const input = document.getElementById('gatePassword');
+  const err   = document.getElementById('gateError');
+  if (input.value === ACCESS_CODE) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').classList.add('visible');
+    initDashboard();
+  } else {
+    err.textContent = 'Incorrect access code.';
+    input.value = '';
+    input.focus();
+    setTimeout(() => { err.textContent = ''; }, 3000);
+  }
+}
+
+function gateLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  clearInterval(_refreshTimer);
+  location.reload();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(SESSION_KEY)) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').classList.add('visible');
+    initDashboard();
+  }
+});
+
+/* ================================================================
+   INIT
+================================================================ */
+function initDashboard() {
+  document.getElementById('dashDate').textContent =
+    new Date().toLocaleDateString('en-PH', {
+      weekday:'short', year:'numeric', month:'long', day:'numeric'
+    });
+
+  loadDashboard();
+  loadNotifications();
+
+  /* Auto-refresh every 5 minutes */
+  _refreshTimer = setInterval(() => {
+    loadDashboard();
+    loadNotifications();
+  }, 5 * 60 * 1000);
+
+  startRefreshCountdown();
+}
+
+function startRefreshCountdown() {
+  const el  = document.getElementById('refreshStatus');
+  let secs  = 300;
+  clearInterval(window._countdownTimer);
+  window._countdownTimer = setInterval(() => {
+    secs--;
+    if (secs <= 0) { secs = 300; }
+    const m = Math.floor(secs / 60);
+    const s = String(secs % 60).padStart(2, '0');
+    el.textContent = `refresh in ${m}:${s}`;
+  }, 1000);
+}
+
+/* ================================================================
+   TAB NAVIGATION
+================================================================ */
+function switchTab(name, btn) {
+  document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.dash-tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+
+  /* Lazy load on tab switch */
+  if (name === 'analytics')     loadAnalytics();
+  if (name === 'notifications') loadNotifications();
+}
+
+/* ================================================================
+   LOAD DASHBOARD DATA
+================================================================ */
+function loadDashboard() {
+  if (!GAS_READY()) { renderPlaceholderData(); return; }
+
+  fetch(`${GAS_ENDPOINT}?action=getDashboard`)
+    .then(r => r.json())
+    .then(data => {
+      renderKPIs(data.kpis             || {});
+      renderHealth(data.health         || {});
+      renderFollowups(data.followups   || []);
+      renderReports(data.recentReports || []);
+      renderAuditLog(data.auditEntries || []);
+      renderRecentNotifications(data.todayNotifications || []);
+
+      /* Store inquiries and render with current filter */
+      _allInquiries = data.inquiries || [];
+      renderInquiries(_allInquiries);
+      updateInquiryBadge(_allInquiries);
+    })
+    .catch(err => {
+      console.error('Dashboard load error:', err);
+      renderPlaceholderData();
+    });
+}
+
+/* ================================================================
+   LOAD NOTIFICATIONS (separate GAS call)
+================================================================ */
+function loadNotifications() {
+  if (!GAS_READY()) return;
+
+  fetch(`${GAS_ENDPOINT}?action=getNotifications`)
+    .then(r => r.json())
+    .then(data => {
+      _allNotifications = data.notifications || [];
+      renderNotificationLog(_allNotifications);
+      updateNotifBadge(_allNotifications);
+    })
+    .catch(() => {});
+}
+
+/* ================================================================
+   LOAD ANALYTICS
+================================================================ */
+function loadAnalytics() {
+  if (!GAS_READY()) {
+    document.getElementById('analyticsGrid').innerHTML =
+      '<div class="setup-notice">Configure GAS_ENDPOINT to see analytics.</div>';
+    return;
+  }
+
+  fetch(`${GAS_ENDPOINT}?action=getAnalytics`)
+    .then(r => r.json())
+    .then(data => {
+      renderAnalytics(data.metrics || {});
+    })
+    .catch(() => {});
+}
+
+/* ================================================================
+   RENDER — KPIs
+================================================================ */
+function renderKPIs(k) {
+  const grid = document.getElementById('kpiGrid');
+  if (!grid) return;
+  const cards = [
+    { label: 'Today\'s Inquiries', value: k.totalInquiries  ?? '—', accent: 'accent-gold'  },
+    { label: 'Confirmed',          value: k.confirmed        ?? '—', accent: 'accent-green' },
+    { label: 'Pending Follow-Ups', value: k.pendingFollowups ?? '—', accent: 'accent-gold'  },
+    { label: 'Frame Consults',     value: k.frameConsults    ?? '—', accent: ''             },
+    { label: 'Pediatric',          value: k.pediatric        ?? '—', accent: ''             },
+    { label: 'Sports & Active',    value: k.sports           ?? '—', accent: ''             },
+    { label: 'Cancelled',          value: k.cancelled        ?? '—', accent: 'accent-red'   },
+    { label: 'Weekly Total',       value: k.weeklyInquiries  ?? '—', accent: 'accent-blue'  },
+  ];
+  grid.innerHTML = cards.map(c => `
+    <div class="kpi-card">
+      <span class="kpi-label">${c.label}</span>
+      <span class="kpi-value ${c.accent}">${c.value}</span>
+    </div>
+  `).join('');
+}
+
+/* ================================================================
+   RENDER — System Health
+================================================================ */
+function renderHealth(h) {
+  const el = document.getElementById('healthGrid');
+  if (!el) return;
+  const rate  = h.successRate ?? 100;
+  const rColor = rate >= 95 ? 'var(--green)' : rate >= 80 ? 'var(--gold)' : 'var(--red)';
+  el.innerHTML = `
+    <div class="kpi-card">
+      <span class="kpi-label">Success Rate</span>
+      <span class="kpi-value" style="color:${rColor}">${rate}%</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Reports Generated</span>
+      <span class="kpi-value">${h.reportsGenerated ?? '—'}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Chat Alerts</span>
+      <span class="kpi-value">${h.chatAlertsSent ?? '—'}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Patient Emails</span>
+      <span class="kpi-value accent-blue">${h.patientEmailsSent ?? '—'}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Follow-Up Reminders</span>
+      <span class="kpi-value accent-rose">${h.followupRemindersSent ?? '—'}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Notifications Today</span>
+      <span class="kpi-value">${h.notificationsToday ?? '—'}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Errors</span>
+      <span class="kpi-value ${(h.errorCount||0) > 0 ? 'accent-red' : 'accent-green'}">${h.errorCount ?? 0}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Audit Events</span>
+      <span class="kpi-value">${h.totalAuditEvents ?? '—'}</span>
+      <span class="kpi-sub">v${h.version || '011'}</span>
+    </div>
+  `;
+}
+
+/* ================================================================
+   RENDER — Inquiries table
+================================================================ */
+function renderInquiries(rows) {
+  const tbody = document.getElementById('inquiriesBody');
+  if (!tbody) return;
+
+  const filtered = _inquiryFilter === 'all'
+    ? rows
+    : rows.filter(r => (r.status || 'new').toLowerCase() === _inquiryFilter);
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="dash-empty">No inquiries${_inquiryFilter !== 'all' ? ' with status: ' + _inquiryFilter : ''}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(r => {
+    const status = (r.status || 'new').toLowerCase();
+    const canConfirm = ['new','contacted'].includes(status);
+    const canCancel  = !['cancelled','completed'].includes(status);
+    return `
+      <tr>
+        <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${sanitize(r.inquiryId)}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${formatTime(r.timestamp)}</td>
+        <td><strong>${sanitize(r.name)}</strong></td>
+        <td style="font-family:var(--mono);font-size:11px">${sanitize(r.phone)}</td>
+        <td><span class="service-tag">${sanitize(r.service)}</span></td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${sanitize(r.email ? r.email.substring(0,20)+'…' : '—')}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${sanitize(r.source)}</td>
+        <td><span class="status-badge status-${status}">${sanitize(r.status || 'New')}</span></td>
+        <td style="white-space:nowrap">
+          ${canConfirm ? `<button class="action-btn confirm" onclick="confirmInquiry('${sanitize(r.inquiryId)}','${sanitize(r.name)}',this)">✓ Confirm</button>` : ''}
+          ${canCancel  ? `<button class="action-btn cancel"  onclick="cancelInquiry('${sanitize(r.inquiryId)}','${sanitize(r.name)}',this)"  style="margin-left:4px">✕ Cancel</button>` : ''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterInquiries(status, btn) {
+  _inquiryFilter = status;
+  document.querySelectorAll('#inquiryFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderInquiries(_allInquiries);
+}
+
+function updateInquiryBadge(rows) {
+  const newCount = rows.filter(r => (r.status || 'new').toLowerCase() === 'new').length;
+  const badge    = document.getElementById('badge-inquiries');
+  if (newCount > 0) {
+    badge.textContent = newCount;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+/* ================================================================
+   INLINE ACTIONS — Confirm / Cancel
+================================================================ */
+function confirmInquiry(inquiryId, name, btn) {
+  if (!GAS_READY()) { showToast('Configure GAS_ENDPOINT first.', 'error'); return; }
+  if (!confirm(`Confirm appointment for ${name}?`)) return;
+
+  const date = prompt('Appointment date (e.g. 2026-07-01):') || '';
+  const time = prompt('Appointment time (e.g. 10:00 AM):')   || '';
+
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  fetch(GAS_ENDPOINT, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'confirmAppointment',
+      inquiryId, patientName: name, date, time,
+    }),
+  })
+  .then(() => {
+    showToast(`Appointment confirmed — ${name}`, 'success');
+    setTimeout(loadDashboard, 800);
+  })
+  .catch(() => { showToast('Error — check GAS logs.', 'error'); btn.disabled = false; btn.textContent = '✓ Confirm'; });
+}
+
+function cancelInquiry(inquiryId, name, btn) {
+  if (!GAS_READY()) { showToast('Configure GAS_ENDPOINT first.', 'error'); return; }
+  if (!confirm(`Cancel inquiry for ${name}?`)) return;
+
+  const reason = prompt('Reason for cancellation:') || 'Not specified';
+
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  fetch(GAS_ENDPOINT, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'cancelAppointment',
+      inquiryId, patientName: name, reason,
+    }),
+  })
+  .then(() => {
+    showToast(`Inquiry cancelled — ${name}`, 'error');
+    setTimeout(loadDashboard, 800);
+  })
+  .catch(() => { showToast('Error — check GAS logs.', 'error'); btn.disabled = false; btn.textContent = '✕ Cancel'; });
+}
+
+/* ================================================================
+   RENDER — Follow-Up Queue
+================================================================ */
+function renderFollowups(items) {
+  const list = document.getElementById('followupList');
+  if (!list) return;
+  if (!items.length) {
+    list.innerHTML = '<div class="dash-empty" style="padding:20px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted)">No pending follow-ups.</div>';
+    return;
+  }
+
+  const today = new Date().toISOString().substring(0, 10);
+
+  list.innerHTML = items.map(f => {
+    const isOverdue = f.dueDate && f.dueDate < today;
+    const statusClass = isOverdue ? ' overdue' : '';
+    const dateClass   = isOverdue ? ' overdue' : '';
+    return `
+      <div class="followup-item${statusClass}">
+        <div>
+          <div class="followup-name">${sanitize(f.name)}</div>
+          <div class="followup-meta">${sanitize(f.notes || f.reason || '—')} · ${sanitize(f.phone)} · <span style="font-family:var(--mono);font-size:10px">${sanitize(f.inquiryId)}</span></div>
+        </div>
+        <div>
+          <div class="followup-date${dateClass}">${sanitize(f.dueDate) || '—'}${isOverdue ? ' ⚠' : ''}</div>
+          <div style="font-size:10px;color:var(--muted2);text-align:right;margin-top:3px">${sanitize(f.status || 'Pending')}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ================================================================
+   RENDER — Notifications
+================================================================ */
+const NOTIF_COLORS = {
+  NEW_INQUIRY:           'var(--gold)',
+  APPOINTMENT_CONFIRMED: 'var(--green)',
+  APPOINTMENT_CANCELLED: 'var(--red)',
+  FOLLOWUP_REMINDER:     'var(--rose)',
+  FRAME_READY:           'var(--blue)',
+  PRESCRIPTION_READY:    'var(--blue)',
+  WEEKLY_REPORT:         'var(--muted2)',
+  SYSTEM_ALERT:          'var(--red)',
+};
+
+function renderRecentNotifications(items) {
+  const el = document.getElementById('recentNotifications');
+  if (!el) return;
+  if (!items.length) {
+    el.innerHTML = '<div class="notification-item"><span style="font-family:var(--mono);font-size:12px;color:var(--muted)">No notifications today.</span></div>';
+    return;
+  }
+  el.innerHTML = items.slice(0, 8).map(n => buildNotifItem(n)).join('');
+}
+
+function renderNotificationLog(items) {
+  const el = document.getElementById('notificationLog');
+  if (!el) return;
+
+  const filtered = _notifFilter === 'all'
+    ? items
+    : items.filter(n => n.type === _notifFilter);
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="notification-item"><span style="font-family:var(--mono);font-size:12px;color:var(--muted)">No notifications.</span></div>';
+    return;
+  }
+  el.innerHTML = filtered.map(n => buildNotifItem(n)).join('');
+}
+
+function buildNotifItem(n) {
+  const color = NOTIF_COLORS[n.type] || 'var(--muted2)';
+  return `
+    <div class="notification-item">
+      <div class="notification-type-dot" style="background:${color}"></div>
+      <div class="notification-body">
+        <div class="notification-type">${sanitize(n.type || '').replace(/_/g,' ')}</div>
+        <div class="notification-recipient">${sanitize(n.recipient || '—')}</div>
+        <div class="notification-channel">${sanitize(n.channel || '—')} · ${sanitize(n.referenceId || '')}</div>
+      </div>
+      <div class="notification-time">${formatTime(n.timestamp)}</div>
+    </div>
+  `;
+}
+
+function filterNotifications(type, btn) {
+  _notifFilter = type;
+  document.querySelectorAll('#panel-notifications .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNotificationLog(_allNotifications);
+}
+
+function updateNotifBadge(items) {
+  const today = new Date().toISOString().substring(0, 10);
+  const todayCount = items.filter(n => n.timestamp && String(n.timestamp).startsWith(today)).length;
+  const badge = document.getElementById('badge-notifications');
+  if (todayCount > 0) {
+    badge.textContent = todayCount;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+/* ================================================================
+   RENDER — Analytics
+================================================================ */
+function renderAnalytics(metrics) {
+  const grid = document.getElementById('analyticsGrid');
+  const tbody = document.getElementById('analyticsBody');
+
+  const KEY_LABELS = {
+    inquiry_received:        'Inquiries Received',
+    appointment_confirmed:   'Appointments Confirmed',
+    appointment_cancelled:   'Appointments Cancelled',
+    notification_sent:       'Notifications Sent',
+    patient_email_sent:      'Patient Emails Sent',
+    followup_reminders_sent: 'Follow-Up Reminders',
+    daily_report_generated:  'Daily Reports Generated',
+    weekly_report_generated: 'Weekly Reports Generated',
+    pdf_exported:            'PDFs Exported',
+    vla_generated:           'VLAs Generated',
+    markdown_report_generated:'Markdown Reports',
+  };
+
+  const displayKeys = Object.keys(KEY_LABELS);
+
+  if (grid) {
+    grid.innerHTML = displayKeys.slice(0, 6).map(key => {
+      const m = metrics[key] || { total: 0, today: 0 };
+      const label = KEY_LABELS[key] || key;
+      return `
+        <div class="analytics-card">
+          <div class="analytics-card-label">${label}</div>
+          <div class="analytics-card-value">${m.today}</div>
+          <div class="analytics-card-sub">today · ${m.total} total</div>
+          <div class="sparkline-wrap">
+            ${buildSparkline(m.today, m.total)}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (tbody) {
+    tbody.innerHTML = displayKeys.map(key => {
+      const m = metrics[key] || { total: 0, today: 0 };
+      return `
+        <tr>
+          <td>${KEY_LABELS[key] || key}</td>
+          <td style="font-family:var(--mono)">${m.today}</td>
+          <td style="font-family:var(--mono)">${m.total}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+}
+
+function buildSparkline(today, total) {
+  /* Simple visual bar — normalized ratio */
+  if (!total) return `<svg viewBox="0 0 200 40"><rect x="0" y="20" width="200" height="20" rx="2" fill="rgba(255,255,255,0.04)"/></svg>`;
+  const ratio   = Math.min(today / Math.max(total, 1), 1);
+  const barW    = Math.max(ratio * 200, 2);
+  const todayPct = Math.round(ratio * 100);
+  return `
+    <svg viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="0" y="20" width="200" height="8" rx="4" fill="rgba(255,255,255,0.04)"/>
+      <rect x="0" y="20" width="${barW}" height="8" rx="4" fill="var(--gold)" opacity="0.7"/>
+      <text x="${barW + 4}" y="27" font-size="8" fill="rgba(255,255,255,0.3)" font-family="monospace">${todayPct}%</text>
+    </svg>
+  `;
+}
+
+/* ================================================================
+   RENDER — Reports archive
+================================================================ */
+function renderReports(rows) {
+  const el = document.getElementById('reportsBody');
+  if (!el) return;
+  if (!rows.length) {
+    el.innerHTML = '<tr><td colspan="6" class="dash-empty">No reports yet.</td></tr>';
+    return;
+  }
+  el.innerHTML = rows.map(r => `
+    <tr>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${sanitize(r.reportId)}</td>
+      <td style="font-family:var(--mono);font-size:11px">${sanitize(r.date)}</td>
+      <td><span class="status-badge status-${(r.type||'daily').toLowerCase()}">${sanitize(r.type)}</span></td>
+      <td style="font-family:var(--mono)">${sanitize(r.inquiries)}</td>
+      <td style="font-family:var(--mono)">${sanitize(r.appointments)}</td>
+      <td>${r.notes ? `<a href="${sanitize(r.notes)}" target="_blank" rel="noopener" style="color:var(--gold);font-size:11px;font-family:var(--mono)">Open →</a>` : '—'}</td>
+    </tr>
+  `).join('');
+}
+
+/* ================================================================
+   RENDER — Audit log
+================================================================ */
+function renderAuditLog(entries) {
+  const el = document.getElementById('auditBody');
+  if (!el) return;
+  if (!entries.length) {
+    el.innerHTML = '<tr><td colspan="5" class="dash-empty">No audit events yet.</td></tr>';
+    return;
+  }
+  el.innerHTML = entries.map(e => `
+    <tr>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${sanitize(e.logId)}</td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${formatTime(e.timestamp)}</td>
+      <td style="font-family:var(--mono);font-size:11px">${sanitize(e.action)}</td>
+      <td style="font-size:11px;color:var(--muted)">${sanitize(e.user)}</td>
+      <td style="font-size:12px">${sanitize(e.details)}</td>
+    </tr>
+  `).join('');
+}
+
+/* ================================================================
+   PLACEHOLDER (GAS not configured)
+================================================================ */
+function renderPlaceholderData() {
+  renderKPIs({});
+  renderHealth({});
+  renderFollowups([]);
+  renderReports([]);
+  renderAuditLog([]);
+  renderRecentNotifications([]);
+  renderInquiries([]);
+
+  const grid = document.getElementById('kpiGrid');
+  if (grid) {
+    grid.insertAdjacentHTML('afterbegin', `
+      <div class="setup-notice">
+        ⚙ GAS_ENDPOINT not configured.<br>
+        1. Deploy gas_e009.gs as a Web App.<br>
+        2. Paste /exec URL into <code>GAS_ENDPOINT</code> in admin.html and script.js.<br>
+        3. Run <code>initializeSheets()</code> then <code>installTriggers()</code>.
+      </div>
+    `);
+  }
+}
+
+/* ================================================================
+   REPORT TRIGGERS
+================================================================ */
+function triggerAction(action, label, btn) {
+  if (!GAS_READY()) { showToast('Configure GAS_ENDPOINT first.', 'error'); return; }
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<div class="dash-spinner" style="width:14px;height:14px;margin:0 auto"></div>';
+  btn.disabled = true;
+
+  fetch(`${GAS_ENDPOINT}?action=${action}`)
+    .then(r => r.json())
+    .then(d => {
+      const msg = d.message || d.url || (d.success ? 'Done.' : 'Check GAS logs.');
+      showToast(`${label}: ${msg}`, d.success !== false ? 'success' : 'error');
+      if (d.success) loadDashboard();
+    })
+    .catch(() => showToast('Error contacting GAS. Check endpoint.', 'error'))
+    .finally(() => { btn.innerHTML = orig; btn.disabled = false; });
+}
+
+function openGoogleSheet() {
+  if (SHEET_URL && SHEET_URL !== 'YOUR_GOOGLE_SHEET_URL_HERE') {
+    window.open(SHEET_URL, '_blank');
+  } else {
+    showToast('Set SHEET_URL in admin.html.', 'error');
+  }
+}
+
+/* ================================================================
+   TOAST
+================================================================ */
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = `show ${type || ''}`;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.className = ''; }, 3500);
+}
+
+/* ================================================================
+   UTILITIES
+================================================================ */
+function formatTime(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+  } catch { return String(iso); }
+}
+
+function sanitize(str) {
+  if (str === null || str === undefined) return '—';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
