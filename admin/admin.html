@@ -1614,7 +1614,7 @@ body {
 
 /* ── CONFIG — paste your deployed /exec URL ── */
 const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzRD7Rprj6K3MLb6-i6YJivdu3JkqdsDTAFJcGUAOarrMoRozE0gplsWp2W0q06QvhMtw/exec';
-const SHEET_URL    = 'https://docs.google.com/spreadsheets/d/1eUv-GRZPFR9LBhEND2sBA-3QrN-2uAD1wg4a8DTsrkc';
+const SHEET_URL    = 'https://docs.google.com/spreadsheets/d/1eUv-GRZPFR9LBhEND2sBA-3QrN-2uAD1wg4a8DTSrkc/edit#gid=0';
 const ACCESS_CODE  = 'lloptical2024';   /* change before deploying */
 const SESSION_KEY  = 'llop_admin_v011';
 
@@ -1624,7 +1624,7 @@ let _allNotifications = [];
 let _inquiryFilter    = 'all';
 let _notifFilter      = 'all';
 let _refreshTimer     = null;
-const GAS_READY       = () => GAS_ENDPOINT && GAS_ENDPOINT !== 'https://script.google.com/macros/s/AKfycbzRD7Rprj6K3MLb6-i6YJivdu3JkqdsDTAFJcGUAOarrMoRozE0gplsWp2W0q06QvhMtw/exec';
+const GAS_READY       = () => Boolean(GAS_ENDPOINT && GAS_ENDPOINT.includes('/macros/s/') && GAS_ENDPOINT.endsWith('/exec'));
 
 /* ================================================================
    GATE
