@@ -38,7 +38,7 @@
  * 5. Run installTriggers() once — daily 6PM + daily 9AM + weekly Monday
  * 6. Deploy → Web App → Anyone → copy /exec URL
  * 7. Paste /exec URL into:
- *       script.js  → const GAS_ENDPOINT = '...'
+ *       script.js  → const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzRD7Rprj6K3MLb6-i6YJivdu3JkqdsDTAFJcGUAOarrMoRozE0gplsWp2W0q06QvhMtw/exec'
  *       admin.html → const GAS_ENDPOINT = '...'
  * ================================================================
  */
@@ -47,8 +47,9 @@
    CONFIG
 ================================================================ */
 const CONFIG = {
-  SHEET_ID:      'YOUR_GOOGLE_SHEET_ID_HERE',
-  CHAT_WEBHOOK:  'YOUR_GOOGLE_CHAT_WEBHOOK_URL_HERE',
+  SHEET_ID:      '1eUv-GRZPFR9LBhEND2sBA-3QrN-2uAD1wg4a8DTsrkc',
+  CHAT_WEBHOOK:  '""',
+  CHAT_ENABLED:   false,
   OWNER_EMAIL:   'laraeldie1956@gmail.com',
   CLINIC_NAME:   'Lotilla-Lara Optical Clinic',
   CLINIC_PHONE:  '+63 967 271 0883',
@@ -56,7 +57,7 @@ const CONFIG = {
   TIMEZONE:      'Asia/Manila',
   EOD_HOUR:      18,
   MORNING_HOUR:  9,
-  ADMIN_VERSION: '009-C',
+  ADMIN_VERSION: '009',
 };
 
 /* ================================================================
@@ -78,6 +79,18 @@ const TABS = {
    Body: { action, ...payload }
    Actions: submitInquiry | confirmAppointment | cancelAppointment
 ================================================================ */
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      success: true,
+      status: "LL-OPTICALV2 Backend e009 is running",
+      method: "GET",
+      version: CONFIG.ADMIN_VERSION,
+      timestamp: new Date().toISOString()
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 function doPost(e) {
   try {
     const data   = JSON.parse(e.postData.contents);
@@ -93,6 +106,12 @@ function doPost(e) {
         break;
       case 'cancelAppointment':
         result = cancelAppointment(data);
+        break;
+      case 'rescheduleAppointment':
+        result = rescheduleAppointment(data);
+        break;
+      case 'updateSettings':
+        result = updateSettings(data);
         break;
       default:
         result = { success: false, error: `Unknown action: ${action}` };
@@ -120,6 +139,9 @@ function doGet(e) {
       case 'getHealth':             result = getSystemHealth();              break;
       case 'getAnalytics':          result = getAnalyticsData();             break;
       case 'getNotifications':      result = getNotificationLog();           break;
+      case 'getAppointments':       result = getAppointmentsData();          break;
+      case 'getSettings':           result = getSettingsData();              break;
+      case 'getReportRange':        result = getReportRange(e.parameter);    break;
       default:                      result = { error: 'Unknown action.' };
     }
     return jsonResponse(result);
@@ -294,6 +316,123 @@ function cancelAppointment(data) {
 }
 
 /* ================================================================
+   IMPLEMENTATION_013 — getAppointmentsData()
+   Reads Appointments tab for the Appointments dashboard module.
+   Columns: AppointmentID | InquiryID | Date | Time | PatientName |
+            Service | Status | Notes | CreatedAt
+   Cross-references Inquiries tab for Phone (not stored on Appointments row).
+================================================================ */
+function getAppointmentsData() {
+  const ss      = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  const apptSht = ss.getSheetByName(TABS.APPOINTMENTS);
+  const inqSht  = ss.getSheetByName(TABS.INQUIRIES);
+  if (!apptSht) return { appointments: [] };
+
+  // Build InquiryID -> Phone lookup (Inquiries col D / index 3)
+  const phoneByInquiryId = {};
+  if (inqSht) {
+    const inqRows = inqSht.getDataRange().getValues().slice(1);
+    inqRows.forEach(r => { if (r[0]) phoneByInquiryId[r[0]] = r[3] || ''; });
+  }
+
+  const rows = apptSht.getDataRange().getValues().slice(1);
+  const appointments = rows
+    .filter(r => r[0]) // skip blank rows
+    .map(r => ({
+      appointmentId: r[0],
+      inquiryId:     r[1],
+      date:          formatApptDate(r[2]),
+      time:          r[3],
+      name:          r[4],
+      patientName:   r[4],
+      service:       r[5],
+      status:        (r[6] || 'Pending'),
+      notes:         r[7],
+      createdAt:     r[8],
+      phone:         phoneByInquiryId[r[1]] || '',
+    }))
+    .reverse()
+    .slice(0, 200);
+
+  return { appointments, generatedAt: new Date().toISOString() };
+}
+
+/* Normalize Date cell — sheet may store as Date object or string */
+function formatApptDate(val) {
+  if (!val) return '';
+  if (val instanceof Date) {
+    return Utilities.formatDate(val, CONFIG.TIMEZONE, 'yyyy-MM-dd');
+  }
+  return String(val).substring(0, 10);
+}
+
+/* ================================================================
+   IMPLEMENTATION_013 — rescheduleAppointment()
+   Updates Date/Time on an existing Appointments row + notifies.
+   Payload: { inquiryId, patientName, newDate, newTime, reason }
+   Mirrors confirmAppointment()/cancelAppointment() patterns —
+   reuses notificationEngine(), recordAnalytic(), auditLog().
+================================================================ */
+function rescheduleAppointment(data) {
+  const ss      = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  const apptSht = ss.getSheetByName(TABS.APPOINTMENTS);
+  const inqSht  = ss.getSheetByName(TABS.INQUIRIES);
+  if (!apptSht) return { success: false, error: 'Appointments tab not found.' };
+
+  let found     = false;
+  let oldDate   = '';
+  let oldTime   = '';
+  const rows    = apptSht.getDataRange().getValues();
+
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0] === data.apptId || rows[i][1] === data.inquiryId) {
+      oldDate = formatApptDate(rows[i][2]);
+      oldTime = rows[i][3];
+      apptSht.getRange(i + 1, 3).setValue(data.newDate || rows[i][2]); // Date
+      apptSht.getRange(i + 1, 4).setValue(data.newTime || rows[i][3]); // Time
+      apptSht.getRange(i + 1, 7).setValue('Confirmed');                // Status stays active
+      if (data.reason) {
+        const prevNotes = rows[i][7] || '';
+        apptSht.getRange(i + 1, 8).setValue(
+          (prevNotes ? prevNotes + ' | ' : '') + `Rescheduled: ${data.reason}`
+        );
+      }
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) return { success: false, error: 'Appointment not found.' };
+
+  // Look up patient contact info for notification, same pattern as cancelAppointment
+  let email = data.email || '';
+  let phone = data.phone || '';
+  if (!email && inqSht && data.inquiryId) {
+    const inqRows = inqSht.getDataRange().getValues().slice(1);
+    const match   = inqRows.find(r => r[0] === data.inquiryId);
+    if (match) { email = match[4] || ''; phone = match[3] || ''; }
+  }
+
+  notificationEngine({
+    type:      'APPOINTMENT_CONFIRMED',
+    apptId:    data.apptId,
+    inquiryId: data.inquiryId,
+    name:      data.patientName || data.name,
+    phone,
+    email,
+    service:   data.service,
+    date:      data.newDate,
+    time:      data.newTime,
+  });
+
+  recordAnalytic('appointment_rescheduled', 1, data.service || 'General');
+  auditLog('appointment_rescheduled', data.patientName || 'unknown',
+           `From ${oldDate} ${oldTime} to ${data.newDate} ${data.newTime}. Reason: ${data.reason || 'Not specified'}`);
+
+  return { success: true, newDate: data.newDate, newTime: data.newTime };
+}
+
+/* ================================================================
    NOTIFICATION ENGINE — unified dispatcher
    E009-006 + OPERATION_NOTIFICATION.md
 
@@ -399,35 +538,21 @@ function notificationEngine(payload) {
 /* ================================================================
    E009-004 — Google Chat
 ================================================================ */
-function sendChatAlert(info) {
-  const chatEnabled = getSettingValue('CHAT_ENABLED');
-  if (chatEnabled === 'FALSE' || chatEnabled === 'false') return;
-
-  sendChatMessage(
-    `🔔 *New Inquiry — ${info.inquiryId || ''}*\n` +
-    `*Name:* ${info.name || 'Unknown'}\n` +
-    `*Phone:* ${info.phone || 'Not provided'}\n` +
-    `*Service:* ${info.service || 'Not specified'}\n` +
-    `*Preferred Date:* ${info.preferredDate || 'Not specified'}\n` +
-    `*Received:* ${info.time || ''}\n` +
-    `_${CONFIG.CLINIC_NAME} · Website_`
-  );
+function sendChatAlert(payload) {
+  if (!CONFIG.CHAT_ENABLED || !CONFIG.CHAT_WEBHOOK) return false;
+  return sendChatMessage(formatChatMessage(payload));
 }
 
 function sendChatMessage(text) {
-  if (!CONFIG.CHAT_WEBHOOK || CONFIG.CHAT_WEBHOOK === 'YOUR_GOOGLE_CHAT_WEBHOOK_URL_HERE') {
-    console.log('Chat not configured. Message:', text);
-    return;
-  }
-  try {
-    UrlFetchApp.fetch(CONFIG.CHAT_WEBHOOK, {
-      method:      'post',
-      contentType: 'application/json',
-      payload:     JSON.stringify({ text }),
-    });
-  } catch (err) {
-    auditLog('sendChatMessage:ERROR', 'system', err.message);
-  }
+  if (!CONFIG.CHAT_ENABLED || !CONFIG.CHAT_WEBHOOK) return false;
+
+  UrlFetchApp.fetch(CONFIG.CHAT_WEBHOOK, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify({ text: text })
+  });
+
+  return true;
 }
 
 /* ================================================================
@@ -1298,8 +1423,251 @@ function getSettingValue(key) {
 }
 
 /* ================================================================
-   Doc helpers
+   IMPLEMENTATION_013 — getSettingsData()
+   Returns all Settings tab rows as a flat key→value object
+   for the admin.html Settings module.
+   Reuses getSettingValue() pattern — reads same sheet, same columns.
+   Key map aligns with admin.html v012 renderSettingsForm() fields.
 ================================================================ */
+function getSettingsData() {
+  try {
+    const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(TABS.SETTINGS);
+    if (!sheet) return { settings: {} };
+
+    // Build a full key→value map from every row in the Settings tab
+    const rows    = sheet.getDataRange().getValues().slice(1);
+    const kvStore = {};
+    rows.forEach(r => { if (r[0]) kvStore[String(r[0])] = String(r[1] || ''); });
+
+    // Map the stored keys → the camelCase shape admin.html expects
+    const settings = {
+      // Clinic Information
+      clinicName:          kvStore['CLINIC_NAME']            || CONFIG.CLINIC_NAME,
+      clinicPhone:         kvStore['CLINIC_PHONE']           || CONFIG.CLINIC_PHONE,
+      clinicEmail:         kvStore['CLINIC_EMAIL']           || CONFIG.OWNER_EMAIL,
+      clinicAddress:       kvStore['CLINIC_ADDRESS']         || '',
+      // Hours
+      openTime:            kvStore['OPEN_TIME']              || '09:00',
+      closeTime:           kvStore['CLOSE_TIME']             || '18:00',
+      workDays:            kvStore['WORK_DAYS']              || 'Sunday – Friday',
+      appointmentDuration: kvStore['APPOINTMENT_DURATION']   || '30',
+      // Notifications
+      doctorEmail:         kvStore['OWNER_EMAIL']            || CONFIG.OWNER_EMAIL,
+      notifyNewInquiry:    kvStore['CHAT_ENABLED']           !== 'FALSE',
+      notifyConfirmed:     kvStore['EMAIL_ENABLED']          !== 'FALSE',
+      notifyFollowup:      kvStore['FOLLOWUP_ENABLED']       !== 'FALSE',
+      reminderDaysBefore:  kvStore['FOLLOWUP_REMINDER_DAYS'] || '0',
+      // System (access code intentionally omitted from response)
+      version:             kvStore['ADMIN_VERSION']          || CONFIG.ADMIN_VERSION,
+      reportTime:          kvStore['REPORT_TIME']            || '18:00',
+      weeklyReportDay:     kvStore['WEEKLY_REPORT']          || 'Monday',
+    };
+
+    return { settings, generatedAt: new Date().toISOString() };
+  } catch (err) {
+    auditLog('getSettingsData:ERROR', 'system', err.message);
+    return { settings: {}, error: err.message };
+  }
+}
+
+/* ================================================================
+   IMPLEMENTATION_013 — updateSettings()
+   Writes admin.html Settings form values back to the Settings tab.
+   Strategy: upsert — update existing Key row, append if new.
+   Never overwrites accessCode with blank.
+   Reuses getSettingValue() architecture (same sheet, same columns).
+   Payload: { action: 'updateSettings', settings: { ...fields } }
+================================================================ */
+function updateSettings(data) {
+  try {
+    const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(TABS.SETTINGS);
+    if (!sheet) return { success: false, error: 'Settings tab not found.' };
+
+    const s   = data.settings || {};
+    const now = new Date().toISOString();
+
+    // Map camelCase admin fields → Settings tab Key names
+    const updates = [
+      ['CLINIC_NAME',            s.clinicName          || ''],
+      ['CLINIC_PHONE',           s.clinicPhone         || ''],
+      ['CLINIC_EMAIL',           s.clinicEmail         || ''],
+      ['CLINIC_ADDRESS',         s.clinicAddress       || ''],
+      ['OPEN_TIME',              s.openTime            || '09:00'],
+      ['CLOSE_TIME',             s.closeTime           || '18:00'],
+      ['WORK_DAYS',              s.workDays            || ''],
+      ['APPOINTMENT_DURATION',   s.appointmentDuration || '30'],
+      ['OWNER_EMAIL',            s.doctorEmail         || ''],
+      ['CHAT_ENABLED',           s.notifyNewInquiry    ? 'TRUE' : 'FALSE'],
+      ['EMAIL_ENABLED',          s.notifyConfirmed     ? 'TRUE' : 'FALSE'],
+      ['FOLLOWUP_ENABLED',       s.notifyFollowup      ? 'TRUE' : 'FALSE'],
+      ['FOLLOWUP_REMINDER_DAYS', s.reminderDaysBefore  || '0'],
+    ];
+
+    // Access code: only write if non-blank
+    if (s.accessCode && String(s.accessCode).trim() !== '') {
+      updates.push(['ACCESS_CODE', String(s.accessCode).trim()]);
+    }
+
+    // Upsert: scan existing rows and update in-place; track which keys were found
+    const rows    = sheet.getDataRange().getValues();
+    const updated = {};
+
+    for (let i = 1; i < rows.length; i++) {
+      const key = rows[i][0];
+      const upd = updates.find(u => u[0] === key);
+      if (upd) {
+        sheet.getRange(i + 1, 2).setValue(upd[1]);   // Value
+        sheet.getRange(i + 1, 4).setValue(now);       // UpdatedAt
+        updated[key] = true;
+      }
+    }
+
+    // Append any keys that didn't exist yet
+    updates.forEach(([key, value]) => {
+      if (!updated[key]) {
+        sheet.appendRow([key, value, 'Set from admin dashboard', now, '']);
+      }
+    });
+
+    // Sync CLINIC_NAME back to in-memory CONFIG so reports use the latest name
+    if (s.clinicName) CONFIG.CLINIC_NAME = s.clinicName;
+
+    recordAnalytic('settings_updated', 1, 'Settings');
+    auditLog('settings_updated', 'admin', `Fields updated: ${updates.map(u => u[0]).join(', ')}`);
+
+    return { success: true, updatedAt: now };
+  } catch (err) {
+    auditLog('updateSettings:ERROR', 'system', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+/* ================================================================
+   IMPLEMENTATION_013 — test functions
+================================================================ */
+function testGetAppointmentsData() {
+  const result = getAppointmentsData();
+  console.log('testGetAppointmentsData: count =', result.appointments.length);
+  if (result.appointments.length > 0) {
+    console.log('  sample[0]:', JSON.stringify(result.appointments[0]));
+  }
+}
+
+function testGetSettingsData() {
+  const result = getSettingsData();
+  console.log('testGetSettingsData:', JSON.stringify(result.settings, null, 2));
+}
+
+function testUpdateSettings() {
+  const result = updateSettings({
+    settings: {
+      clinicName:          'Lotilla-Lara Optical Clinic',
+      clinicPhone:         '+63 967 271 0883',
+      clinicEmail:         'laraeldie1956@gmail.com',
+      clinicAddress:       'Isulan, Sultan Kudarat',
+      openTime:            '09:00',
+      closeTime:           '18:00',
+      workDays:            'Sunday – Friday',
+      appointmentDuration: '30',
+      doctorEmail:         'laraeldie1956@gmail.com',
+      notifyNewInquiry:    true,
+      notifyConfirmed:     true,
+      notifyFollowup:      true,
+      reminderDaysBefore:  '0',
+    },
+  });
+  console.log('testUpdateSettings:', JSON.stringify(result));
+}
+
+function testRescheduleAppointment() {
+  // Uses a dummy inquiry ID — check your Appointments tab for a real one
+  const result = rescheduleAppointment({
+    inquiryId:   'INQ-TEST-0001',
+    patientName: 'Test Patient',
+    newDate:     Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'yyyy-MM-dd'),
+    newTime:     '14:00',
+    reason:      'Test reschedule from GAS editor.',
+  });
+  console.log('testRescheduleAppointment:', JSON.stringify(result));
+}
+
+/* ================================================================
+   IMPLEMENTATION_014 — getReportRange(params)
+   Custom date range query for the admin.html Reports module.
+   Reads Inquiries tab filtered to dateFrom..dateTo.
+   Returns: KPIs (same shape as buildKPIs), service breakdown,
+            full inquiry rows for CSV export, row count.
+   Reuses buildKPIs() — no new KPI logic.
+================================================================ */
+function getReportRange(params) {
+  const dateFrom = params.dateFrom || '';
+  const dateTo   = params.dateTo   || dateFrom;
+
+  if (!dateFrom) return { error: 'dateFrom is required.', kpis: {}, services: {}, rows: [], rowCount: 0 };
+
+  try {
+    const ss     = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const inqSht = ss.getSheetByName(TABS.INQUIRIES);
+    if (!inqSht) return { kpis: {}, services: {}, rows: [], rowCount: 0 };
+
+    const allRows = inqSht.getDataRange().getValues().slice(1);
+
+    /* Filter to rows whose Timestamp (col B / index 1) falls in [dateFrom, dateTo] */
+    const rangeRows = allRows.filter(r => {
+      if (!r[1]) return false;
+      const rowDate = r[1] instanceof Date
+        ? Utilities.formatDate(r[1], CONFIG.TIMEZONE, 'yyyy-MM-dd')
+        : String(r[1]).substring(0, 10);
+      return rowDate >= dateFrom && rowDate <= dateTo;
+    });
+
+    /* KPIs — reuse buildKPIs with rangeRows as "today" slice, allRows for context */
+    const kpis = buildKPIs(rangeRows, allRows);
+
+    /* Service breakdown */
+    const services = {};
+    rangeRows.forEach(r => {
+      const s = String(r[5] || 'Other').trim();
+      services[s] = (services[s] || 0) + 1;
+    });
+
+    /* Full rows for CSV — return lightweight shape */
+    const rows = rangeRows.map(r => ({
+      inquiryId:  r[0],
+      timestamp:  r[1] instanceof Date
+        ? Utilities.formatDate(r[1], CONFIG.TIMEZONE, 'yyyy-MM-dd HH:mm')
+        : String(r[1] || ''),
+      name:    r[2], phone:   r[3], email:   r[4],
+      service: r[5], message: r[6], source:  r[7], status: r[8] || 'New',
+    }));
+
+    recordAnalytic('report_range_query', 1, 'Reports');
+    auditLog('report_range_query', 'admin',
+             `Range: ${dateFrom} to ${dateTo}, Rows: ${rows.length}`);
+
+    return {
+      kpis, services, rows,
+      rowCount:   rows.length,
+      dateFrom, dateTo,
+      generatedAt: new Date().toISOString(),
+    };
+  } catch (err) {
+    auditLog('getReportRange:ERROR', 'system', err.message);
+    return { error: err.message, kpis: {}, services: {}, rows: [], rowCount: 0 };
+  }
+}
+
+function testGetReportRange() {
+  const today  = Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'yyyy-MM-dd');
+  const result = getReportRange({ dateFrom: today, dateTo: today });
+  console.log('testGetReportRange:', JSON.stringify({
+    rowCount: result.rowCount,
+    kpis: result.kpis,
+    services: result.services,
+  }, null, 2));
+}
 function appendDocHeader(body, subtitle, date) {
   body.appendParagraph(CONFIG.CLINIC_NAME).setHeading(DocumentApp.ParagraphHeading.HEADING1);
   body.appendParagraph(subtitle).setHeading(DocumentApp.ParagraphHeading.HEADING2);
